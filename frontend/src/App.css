@@ -36,3 +36,12 @@
     transform: rotate(360deg);
   }
 }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+body {
+  background-color: #ff5733; /* Cambia esto al color que desees */
+  /*background-image: url('/path/to/your/image.jpg'); /* Cambia esto a la URL de tu imagen */
+  background-size: cover; /* Para cubrir todo el fondo */
+}
