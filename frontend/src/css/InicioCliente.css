@@ -76,3 +76,9 @@
   font-size: 1.2rem;
   color: #333;
 }
+
+.main-content-usuarios-admin h1{
+  align-items:baseline;
+  font-size: 2rem;
+  color: #8019e6;
+}

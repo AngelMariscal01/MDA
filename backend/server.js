@@ -3,6 +3,8 @@ const postgresql = require("pg");
 const cors = require("cors");
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
 
 const app = express();
 app.use(cors());
@@ -72,6 +74,8 @@ app.post('/login', async (req, res) => {
         }
 
         const user = result.rows[0];
+        const nombre = user.nombre;
+        const rol = user.rol;
 
         // Comparar la contraseña ingresada con la contraseña en la base de datos
         const isMatch = await bcrypt.compare(password, user.contrasena);
@@ -80,14 +84,22 @@ app.post('/login', async (req, res) => {
             return res.status(400).json({ error: 'Contraseña incorrecta' });
         }
 
+        let token;
+        try {
+            token = jwt.sign({ nombre, rol }, "Stack", { expiresIn: '3m' });
+            console.log(token)
+        } catch (err) {
+            console.error("Error al generar el token:", err);
+            return res.status(500).json({ error: 'Error al generar el token' });
+        }
+        
+        //return res.send({token});
         // Retornar los datos del usuario, incluyendo el rol
+        
         return res.json({
             message: 'Inicio de sesión exitoso',
             user: {
-                id: user.usuario_id,
-                nombre: user.nombre,
-                correo: user.correo,
-                rol: user.rol, // Incluye el rol del usuario
+                token: token
             }
         });
     } catch (err) {
