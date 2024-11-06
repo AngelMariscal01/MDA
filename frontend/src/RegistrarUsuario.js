@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './App.css';
+import axios from 'axios'
 
 function Registrarse() {
     const navigate = useNavigate();
@@ -59,7 +60,21 @@ function Registrarse() {
 
     const handleRegistrarse = () => {
         if (validarFormulario()) {
-            navigate('/');
+            console.log('Entre1')
+            const nombreCompleto = nombre + " " + apellido
+            console.log('Entre2')
+            const values = {nombreCompleto, email, telefono, password};
+            console.log('Entre3')
+            axios.post('http://localhost:8081/registrarUsuario', values)
+            .then(()=>{
+                console.log('Entre4')
+                navigate('/');
+            })
+            .catch(err => {
+                console.log('Entre5')
+                console.log('Error en el registro: ', err);
+                mostrarError('Hubo un error al registrar el usuario.');
+            });
         }
     };
 
