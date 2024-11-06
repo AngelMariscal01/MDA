@@ -1,0 +1,148 @@
+import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom';
+import '../css/App.css';
+import axios from 'axios'
+
+function IniciarSesion() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [showError, setShowError] = useState(false);
+
+  const validarFormulario = () => {
+    // Verifica si el correo está vacío
+    if (!email) {
+      mostrarError('Por favor, ingresa tu correo electrónico.');
+      return false;
+    }
+
+    // Verifica el formato del correo
+    const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!regexEmail.test(email)) {
+      mostrarError('El correo electrónico no es valido.');
+      return false;
+    }
+
+    // Verifica si la contraseña está vacía
+    if (!password) {
+      mostrarError('Por favor, ingresa tu contraseña.');
+      return false;
+    }
+
+    // Verifica la longitud de la contraseña
+    if (password.length < 6) {
+      mostrarError('La contraseña debe tener al menos 6 caracteres.');
+      return false;
+    }
+
+    // Si pasa todas las validaciones
+    setError('');
+    return true;
+  };
+
+  const mostrarError = (mensaje) => {
+    setError(mensaje);
+    setShowError(true);
+    setTimeout(() => {
+      setShowError(false);
+    }, 3000); // Oculta el mensaje después de 3 segundos
+  };
+
+  const handleIniciarSesion = () => {
+    if (validarFormulario()) {
+      const values = {email, password};
+      axios.post('http://localhost:8081/login', values)
+      .then(()=>{
+          navigate('/inicioCliente');
+      })
+      .catch(err => {
+          console.log('Error en el incio de sesion: ', err);
+          mostrarError('Hubo un error al inciar sesion.');
+      });
+      
+    }
+  };
+
+  return (
+    <div
+      className="relative flex w-full min-h-screen flex-col bg-[#faf8fc] overflow-x-hidden"
+      style={{ fontFamily: 'Epilogue, "Noto Sans", sans-serif' }}
+    >
+      {/* Imagen de Fondo */}
+      <div className="container mx-auto px-4 sm:px-6 md:px-8">
+        <div
+          className="rounded-xl bg-cover bg-center bg-no-repeat min-h-[200px] sm:min-h-[250px] md:min-h-[300px] lg:min-h-[350px] flex flex-col justify-end"
+          style={{
+            backgroundImage: 'url("https://cdn.usegalileo.ai/sdxl10/88fd3dd8-ae77-4aa8-b868-2b9be0c20761.png")',
+          }}
+        ></div>
+      </div>
+
+      {/* Mensaje de Bienvenida */}
+      <h2 className="text-[#140e1b] text-2xl font-bold text-center pt-5 pb-3 sm:text-3xl md:text-4xl lg:text-5xl">
+        Bienvenid@ de nuevo!
+      </h2>
+
+      {/* Campos de Entrada */}
+      <div className="max-w-lg w-full mx-auto flex flex-col gap-4 px-4 py-3 sm:px-6 md:px-8">
+        <label htmlFor='email' className="flex flex-col">
+          <input
+            placeholder="Ingresa tu correo electrónico"
+            className="form-input rounded-xl bg-[#ede7f3] text-[#140e1b] placeholder:text-[#734e97] h-12 sm:h-14 px-4 py-2 sm:py-3 text-base leading-tight"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </label>
+        <label htmlFor='password' className="flex flex-col">
+          <input
+            type="password"
+            placeholder="Ingresa tu contraseña"
+            className="form-input rounded-xl bg-[#ede7f3] text-[#140e1b] placeholder:text-[#734e97] h-12 sm:h-14 px-4 py-2 sm:py-3 text-base leading-tight"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </label>
+      </div>
+
+      {/* Botones de Acción */}
+      <div className="flex justify-center">
+        <div className="flex flex-col gap-3 max-w-lg w-full px-4 py-3 sm:px-6 md:px-8">
+          <button
+            type="button"
+            className="rounded-full bg-[#8019e6] text-[#faf8fc] h-12 sm:h-14 w-full font-bold text-base sm:text-lg tracking-wide hover:bg-[#5f0fb3] transition duration-200"
+            onClick={handleIniciarSesion}
+          >
+            Iniciar Sesión
+          </button>
+
+          <button
+            type="button"
+            className="rounded-full border border-[#140e1b] text-[#140e1b] h-12 sm:h-14 w-full font-bold text-base sm:text-lg tracking-wide hover:bg-[#f0f0f0] transition duration-200"
+            onClick={() => navigate('/registrarse')}
+          >
+            Registrarse
+          </button>
+        </div>
+      </div>
+
+      {/* Olvidaste tu Contraseña */}
+      <a href="" className="text-[#734e97] text-sm text-center underline pb-3 sm:text-base">
+        ¿Olvidaste tu Contraseña?
+      </a>
+
+      {/* Mensaje de Error */}
+      {showError && (
+        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-red-500 text-white p-3 rounded-md shadow-md">
+          {error}
+        </div>
+      )}
+
+      {/* Espacio al final */}
+      <div className="h-5 bg-[#faf8fc]"></div>
+    </div>
+  );
+}
+
+export default IniciarSesion;
