@@ -40,11 +40,15 @@
 
 .dropdown-menu.open {
     display: block; /* Displayed when isMenuOpen is true */
+    /*flex-direction: column; */
 }
 
 .menu-item {
   display: block;
+  width: 100%;  /* Asegúrate de que cada botón ocupe todo el ancho disponible */
   padding: 12px 16px;
+  box-sizing: border-box; /* Asegúrate de que el padding no afecte el tamaño total */
+  margin: 0;  /* Elimina cualquier margen */
   color: #e7e7e7;
   background-color: #8019e6;
   text-decoration: none;

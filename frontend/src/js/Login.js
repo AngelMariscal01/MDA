@@ -1,7 +1,19 @@
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import '../css/App.css';
-import axios from 'axios'
+import axios from 'axios';
+//const jwt = require('jsonwebtoken');
+//const jose = require('node-jose');
+
+function parseJwt (token) {
+  const base64Url = token.split('.')[1];
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+  }).join(''));
+
+  return JSON.parse(jsonPayload);
+}
 
 function IniciarSesion() {
   const navigate = useNavigate();
@@ -9,6 +21,7 @@ function IniciarSesion() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showError, setShowError] = useState(false);
+  const [loginSuccessful, setLoginSuccessful] = useState(false);
 
   const validarFormulario = () => {
     // Verifica si el correo está vacío
@@ -55,8 +68,20 @@ function IniciarSesion() {
         
         axios.post('http://localhost:8081/login', values)
         .then((response) => {
-            const token = response.data.token; // Obtén el objeto de usuario del backend
-            console.log(token)
+            const token = response.data.user.token; // Obtén el objeto de usuario del backend
+            //console.log(token)
+            if(token){
+              localStorage.setItem('token', token)
+              //console.log(parseJwt(token))
+              
+              if(parseJwt(token).rol === 'admin'){
+                navigate('/inicioAdministrador')
+                window.location.reload();
+              }else if (parseJwt(token).rol === 'cliente'){
+                navigate('/inicioCliente')
+                window.location.reload();
+              }
+            }
             /*
             if (user.rol === 'admin') {
                 console.log('SOS ADMIN')
