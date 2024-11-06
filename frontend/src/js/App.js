@@ -2,6 +2,7 @@ import React from "react";
 import IniciarSesion from "./Login";
 import Registrarse from "./RegistrarUsuario"
 import InicioCliente from "./InicioCliente";
+import InicioAdministrador from "./InicioAdmin";
 import {BrowserRouter, Routes, Route} from 'react-router-dom'
 
 function App(){
@@ -11,6 +12,7 @@ function App(){
         <Route path="/" element={<IniciarSesion/>}></Route>
         <Route path="/registrarse" element={<Registrarse />}></Route>
         <Route path="/inicioCliente" element={<InicioCliente />}></Route>
+        <Route path="/inicioAdministrador" element={<InicioAdministrador />}></Route>
       </Routes>
     </BrowserRouter>
       

@@ -72,7 +72,7 @@ app.post('/login', async (req, res) => {
         }
 
         const user = result.rows[0];
-        
+
         // Comparar la contraseña ingresada con la contraseña en la base de datos
         const isMatch = await bcrypt.compare(password, user.contrasena);
 
@@ -80,7 +80,16 @@ app.post('/login', async (req, res) => {
             return res.status(400).json({ error: 'Contraseña incorrecta' });
         }
 
-        return res.json({ message: 'Inicio de sesión exitoso', user });
+        // Retornar los datos del usuario, incluyendo el rol
+        return res.json({
+            message: 'Inicio de sesión exitoso',
+            user: {
+                id: user.usuario_id,
+                nombre: user.nombre,
+                correo: user.correo,
+                rol: user.rol, // Incluye el rol del usuario
+            }
+        });
     } catch (err) {
         console.error('Error en el inicio de sesión:', err);
         return res.status(500).json({ error: 'Error en el inicio de sesión' });

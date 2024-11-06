@@ -51,16 +51,22 @@ function IniciarSesion() {
 
   const handleIniciarSesion = () => {
     if (validarFormulario()) {
-      const values = {email, password};
-      axios.post('http://localhost:8081/login', values)
-      .then(()=>{
-          navigate('/inicioCliente');
-      })
-      .catch(err => {
-          console.log('Error en el incio de sesion: ', err);
-          mostrarError('Hubo un error al inciar sesion.');
-      });
-      
+        const values = { email, password };
+        
+        axios.post('http://localhost:8081/login', values)
+        .then((response) => {
+            const user = response.data.user; // Obtén el objeto de usuario del backend
+            if (user.rol === 'admin') {
+                console.log('SOS ADMIN')
+                navigate('/inicioAdministrador'); // Redirigir a inicioAdministrador si es administrador
+            } else if (user.rol === 'cliente') {
+                navigate('/inicioCliente'); // Redirigir a inicioCliente si es cliente
+            }
+        })
+        .catch(err => {
+            console.log('Error en el inicio de sesión: ', err);
+            mostrarError('Hubo un error al iniciar sesión.');
+        });
     }
   };
 
