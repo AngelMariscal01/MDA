@@ -2,12 +2,21 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaBars } from 'react-icons/fa';
 import '../css/InicioCliente.css';
+import { useNavigate } from 'react-router-dom';
 
 function InicioCliente() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate(); // Llamada a useNavigate aquí
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+  
+  // Función para cerrar sesión
+  const cerrarSesion = () => {
+    localStorage.removeItem('token'); // Elimina el token
+    navigate('/');  // Redirige al login
+    window.location.reload();
   };
 
   return (
@@ -25,6 +34,8 @@ function InicioCliente() {
           <Link to="/carrito" className="menu-item" onClick={toggleMenu}>Carrito</Link>
           <Link to="/perfil" className="menu-item" onClick={toggleMenu}>Perfil</Link>
           <Link to="/contacto" className="menu-item" onClick={toggleMenu}>Contacto</Link>
+          {/* Botón de Cerrar sesión */}
+          <button className="menu-item" onClick={cerrarSesion}>Cerrar sesión</button>
         </nav>
       </header>
 
