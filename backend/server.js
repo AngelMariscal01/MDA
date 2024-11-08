@@ -82,6 +82,7 @@ app.post('/login', async (req, res) => {
         const nombre = user.nombre;
         const rol = user.rol;
         const estado = user.estado;
+        const usuario_id = user.usuario_id;
 
         // Comparar la contraseña ingresada con la contraseña en la base de datos
         const isMatch = await bcrypt.compare(password, user.contrasena);
@@ -92,7 +93,7 @@ app.post('/login', async (req, res) => {
 
         let token;
         try {
-            token = jwt.sign({ nombre, rol, estado }, "Stack", { expiresIn: '3m' });
+            token = jwt.sign({ nombre, rol, estado, usuario_id }, "Stack", { expiresIn: '3m' });
         } catch (err) {
             console.error("Error al generar el token:", err);
             return res.status(500).json({ error: 'Error al generar el token' });

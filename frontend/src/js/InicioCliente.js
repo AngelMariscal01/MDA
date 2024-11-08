@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { FaBars } from 'react-icons/fa';
 import '../css/InicioCliente.css';
 import { useNavigate } from 'react-router-dom';
@@ -7,6 +7,9 @@ import { useNavigate } from 'react-router-dom';
 function InicioCliente() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate(); // Llamada a useNavigate aquí
+  const location = useLocation();
+  const  {usuarioId, rol}  = location.state || {};
+
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -32,7 +35,7 @@ function InicioCliente() {
           <Link to="/productos" className="menu-item" onClick={toggleMenu}>Productos</Link>
           <Link to="/pedidos" className="menu-item" onClick={toggleMenu}>Pedidos</Link>
           <Link to="/carrito" className="menu-item" onClick={toggleMenu}>Carrito</Link>
-          <Link to="/perfil" className="menu-item" onClick={toggleMenu}>Perfil</Link>
+          <Link to={`/perfil/${usuarioId}`} state={{ usuarioId, rol }} className="menu-item" onClick={toggleMenu}>Perfil</Link>
           <Link to="/contacto" className="menu-item" onClick={toggleMenu}>Contacto</Link>
           {/* Botón de Cerrar sesión */}
           <button className="menu-item" onClick={cerrarSesion}>Cerrar sesión</button>

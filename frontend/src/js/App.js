@@ -7,6 +7,7 @@ import UsuariosAdministrador from "./UsuariosAdmin";
 import ActualizarUsuario from "./ActualizarUsuario";
 import RecuperarContrasena from "./RecuperarContrasena";
 import RestablecerContrasena from "./RestablecerContrasena";
+import Contacto from "./Contacto";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 // Función para decodificar el token
@@ -47,6 +48,7 @@ function App() {
         <Route path="/gestionUsuarios" element={tokenValid && rol === 'admin' ? <UsuariosAdministrador /> : <IniciarSesion />} />
         <Route path="/perfil/:usuarioId" element={tokenValid ? <ActualizarUsuario /> : <IniciarSesion />} />
         <Route path="/restablecerContrasena" element={<RestablecerContrasena />} />
+        <Route path="/contacto" element={<Contacto />} />
       </Routes>
     </BrowserRouter>
   );

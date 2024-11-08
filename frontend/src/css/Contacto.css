@@ -1,0 +1,70 @@
+.contacto {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Ocupa toda la pantalla */
+    background-color: #f5f5f5; /* Color de fondo de la página */
+    padding: 20px;
+    box-sizing: border-box;
+    background-size: cover; /* Para que la imagen ocupe toda el área */
+    background-position: center; /* Centra la imagen */
+    background-color: #efb0ff;
+    background-image: url('../donasfondo.jpg');;
+}
+
+.contact-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra los elementos horizontalmente */
+    background-color: #c746e7; /* Fondo morado del recuadro */
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra para profundidad */
+    max-width: 500px; /* Ancho máximo en pantallas grandes */
+    width: 100%; /* Ocupa todo el ancho disponible */
+    box-sizing: border-box;
+}
+
+.qr-image {
+    width: 100%;
+    max-width: 300px; /* Tamaño máximo en pantallas grandes */
+    height: auto; /* Ajusta la altura según el ancho */
+    margin-bottom: 15px;
+}
+
+.contact-info {
+    color: #fff; /* Texto blanco */
+    font-size: 18px;
+    margin: 10px 0;
+}
+
+/* Ajustes para pantallas medianas */
+@media (max-width: 768px) {
+    .contact-box {
+        padding: 15px;
+    }
+
+    .qr-image {
+        max-width: 250px; /* Reduce el tamaño de la imagen en pantallas medianas */
+    }
+
+    .contact-info {
+        font-size: 16px;
+    }
+}
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 480px) {
+    .contact-box {
+        padding: 10px;
+    }
+
+    .qr-image {
+        max-width: 200px; /* Tamaño reducido para pantallas pequeñas */
+    }
+
+    .contact-info {
+        font-size: 14px;
+    }
+}

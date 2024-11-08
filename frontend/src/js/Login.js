@@ -72,10 +72,10 @@ function IniciarSesion() {
             if(token){
               localStorage.setItem('token', token)
               if(parseJwt(token).rol === 'admin' && parseJwt(token).estado === 'activo'){
-                navigate('/inicioAdministrador')
+                navigate('/inicioAdministrador', { state: {usuarioId:parseJwt(token).usuario_id, rol:parseJwt(token).rol } })
                 window.location.reload();
               }else if (parseJwt(token).rol === 'cliente' && parseJwt(token).estado === 'activo'){
-                navigate('/inicioCliente')
+                navigate('/inicioCliente', { state: {usuarioId:parseJwt(token).usuario_id, rol:parseJwt(token).rol } })
                 window.location.reload();
               }
               else if (parseJwt(token).estado === 'inactivo'){
@@ -157,6 +157,7 @@ function IniciarSesion() {
       <a href="/recuperarContrasena" className="text-[#734e97] text-sm text-center underline pb-3 sm:text-base">
         ¿Olvidaste tu Contraseña?
       </a>
+      <a href="/contacto" className="text-[#734e97] text-sm text-center underline pb-3 sm:text-base">@Contacto</a>
 
       {/* Mensaje de Error */}
       {showError && (
@@ -164,9 +165,11 @@ function IniciarSesion() {
           {error}
         </div>
       )}
-
+      
       {/* Espacio al final */}
-      <div className="h-5 bg-[#faf8fc]"></div>
+      <div className="h-5 bg-[#faf8fc]">
+        
+      </div>
     </div>
   );
 }

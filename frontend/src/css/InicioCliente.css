@@ -128,10 +128,11 @@
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 1px;
   transition: background 0.3s;
   margin-top: 10px;
-  align-self: flex-end;
+  margin-right: 25px;
+  align-self:flex-end;
 }
 
 .add-user-button:hover {
@@ -288,4 +289,12 @@
   border: none;
   border-radius: 4px;
   cursor: pointer;
+}
+.search-input {
+  padding: 5px;
+  border: 1px solid #4d3dac;
+  border-radius: 4px;
+  width: 90%;
+  max-width: 1000px;
+  margin-bottom: 1px;
 }

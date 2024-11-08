@@ -12,9 +12,13 @@ function ActualizarUsuario() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [showError, setShowError] = useState(false);
+    const [success, setSuccess] = useState('');
+    const [showSuccess, setShowSuccess] = useState(false);
     const location = useLocation();
-    const  {usuarioId}  = location.state || {};
+    const  {usuarioId, rol}  = location.state || {};
     
+
+
     useEffect(() => {
         // Obtener datos del usuario
         axios.get('http://localhost:8081/obtenerUsuario', { params: { usuarioId: usuarioId} })
@@ -69,13 +73,28 @@ function ActualizarUsuario() {
         }, 3000);
     };
 
+    const mostrarSuccess = (mensaje) => {
+        setSuccess(mensaje);
+        setShowSuccess(true);
+        setTimeout(() => {
+            setShowSuccess(false);
+        }, 3000);
+    };
+
     const handleActualizar = () => {
         if (validarFormulario()) {
             const values = { nombre, email, telefono, password, usuarioId };
             axios.post('http://localhost:8081/actualizarUsuario', values)
                 .then(() => {
-                    navigate('/gestionUsuarios');
-                    window.location.reload();
+                    if(rol === 'admin'){
+                        mostrarSuccess('¡Usuario actualizado exitosamente!');
+                        setTimeout(() => navigate('/gestionUsuarios'), 3000);
+                        
+                    }else if(rol === 'cliente'){
+                        mostrarSuccess('¡Usuario actualizado exitosamente!');
+                        setTimeout(() => navigate('/inicioCliente', {state: { usuarioId, rol } }), 1000);
+                    }
+                    //window.location.reload();
                 })
                 .catch(err => {
                     console.log('Error en la actualización: ', err);
@@ -109,6 +128,11 @@ function ActualizarUsuario() {
             {showError && (
                 <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-red-500 text-white p-3 rounded-md shadow-md">
                     {error}
+                </div>
+            )}
+            {showSuccess && (
+                <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-green-500 text-white p-3 rounded-md shadow-md">
+                    {success}
                 </div>
             )}
         </div>

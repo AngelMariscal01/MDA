@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { FaBars, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 import '../css/InicioCliente.css';
 import axios from 'axios';
@@ -9,47 +9,43 @@ function UsuariosAdministrador() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [error, setError] = useState('');
   const [showError, setShowError] = useState(false);
-  const [usuarios, setUsuarios] = useState([]); // Cambiar usuarios a state
-  const navigate = useNavigate(); // Llamada a useNavigate aquí
+  const [usuarios, setUsuarios] = useState([]);
+  const [searchTerm, setSearchTerm] = useState(''); // Estado para el término de búsqueda
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { usuarioId, rol } = location.state || {};
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  
   const mostrarError = (mensaje) => {
     setError(mensaje);
     setShowError(true);
-    setTimeout(() => {
-      setShowError(false);
-    }, 3000); // Oculta el mensaje después de 3 segundos
-  };
-  
-  const cerrarSesion = () => {
-    localStorage.removeItem('token'); // Elimina el token
-    navigate('/');  // Redirige al login
-    window.location.reload();
+    setTimeout(() => setShowError(false), 3000); // Oculta el mensaje después de 3 segundos
   };
 
+  const cerrarSesion = () => {
+    localStorage.removeItem('token');
+    navigate('/');
+    window.location.reload();
+  };
 
   useEffect(() => {
     axios
       .get('http://localhost:8081/usuarios')
-      .then((response) => {
-        setUsuarios(response.data.usuarios); // Actualizar el estado con los usuarios
-      })
+      .then((response) => setUsuarios(response.data.usuarios))
       .catch((err) => {
-        console.log('Error al cargar los usuarios: ', err);
+        console.log('Error al cargar los usuarios:', err);
         mostrarError('Hubo un error al cargar los usuarios.');
       });
-  }, []); // [] asegura que el efecto solo se ejecute una vez al montar
+  }, []);
 
   const handleEstadoChange = (usuarioId, nuevoEstado) => {
+    if (!window.confirm('¿Estás seguro de actualizar el estado de este usuario?')) return;
     
-    const confirmar = window.confirm('¿Estás seguro de actualizar el estado de este usuario?');
-    if (!confirmar) return;
     const estado = nuevoEstado ? 'activo' : 'inactivo';
     axios
       .post('http://localhost:8081/usuarios/actualizarEstado', { usuarioId, estado })
-      .then((response) => {
+      .then(() => {
         setUsuarios((prevUsuarios) =>
           prevUsuarios.map((usuario) =>
             usuario.usuario_id === usuarioId ? { ...usuario, estado } : usuario
@@ -57,20 +53,18 @@ function UsuariosAdministrador() {
         );
       })
       .catch((err) => {
-        console.log('Error al actualizar el estado del usuario: ', err);
+        console.log('Error al actualizar el estado del usuario:', err);
         mostrarError('Hubo un error al actualizar el estado del usuario.');
       });
   };
 
   const handleRolChange = (usuarioId, nuevoEstado) => {
-
-    const confirmar = window.confirm('¿Estás seguro de actualizar el rol de este usuario?');
-    if (!confirmar) return;
+    if (!window.confirm('¿Estás seguro de actualizar el rol de este usuario?')) return;
 
     const rol = nuevoEstado ? 'admin' : 'cliente';
     axios
       .post('http://localhost:8081/usuarios/actualizarRol', { usuarioId, rol })
-      .then((response) => {
+      .then(() => {
         setUsuarios((prevUsuarios) =>
           prevUsuarios.map((usuario) =>
             usuario.usuario_id === usuarioId ? { ...usuario, rol } : usuario
@@ -78,103 +72,110 @@ function UsuariosAdministrador() {
         );
       })
       .catch((err) => {
-        console.log('Error al actualizar el estado del usuario: ', err);
-        mostrarError('Hubo un error al actualizar el estado del usuario.');
+        console.log('Error al actualizar el rol del usuario:', err);
+        mostrarError('Hubo un error al actualizar el rol del usuario.');
       });
   };
 
-  const handleEditarUsuario = (usuarioId) => {
-    navigate(`/perfil/${usuarioId}`, { state: { usuarioId } }); // Redirige a la ruta de edición con el ID del usuario
+  const handleEditarUsuario = (usuarioId, rol) => {
+    navigate(`/perfil/${usuarioId}`, { state: { usuarioId, rol } });
   };
 
   const handleEliminarUsuario = (usuarioId) => {
-    // Asegúrate de enviar `usuario_id` en lugar de `usuarioId`
-
-    const confirmar = window.confirm('¿Estás seguro de eliminar este usuario?');
-    if (!confirmar) return;
+    if (!window.confirm('¿Estás seguro de eliminar este usuario?')) return;
 
     axios
       .post('http://localhost:8081/usuarios/eliminar', { usuarioId })
-      .then((response) => {
-        window.location.reload();
-      })
+      .then(() => window.location.reload())
       .catch((err) => {
-        console.log('Error al eliminar el usuario: ', err);
+        console.log('Error al eliminar el usuario:', err);
         mostrarError('Hubo un error al eliminar el usuario.');
-        
       });
   };
 
-return (
-  <div className="inicio-cliente">
-    <header className="header">
-      <div className="menu-icon" onClick={toggleMenu}>
-        <FaBars size={24} />
-      </div>
+  // Filtrar los usuarios en función del término de búsqueda
+  const usuariosFiltrados = usuarios.filter((usuario) =>
+    usuario.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-      <nav className={`dropdown-menu ${isMenuOpen ? 'open' : ''}`}>
-        <Link to="/gestionProductos" className="menu-item" onClick={toggleMenu}>Productos</Link>
-        <Link to="/gestionUsuarios" className="menu-item" onClick={toggleMenu}>Usuarios</Link>
-        <Link to="/gestionPedidos" className="menu-item" onClick={toggleMenu}>Pedidos</Link>
-        <Link to="/estadisticas" className="menu-item" onClick={toggleMenu}>Estadísticas</Link>
-        <button className="menu-item" onClick={cerrarSesion}>Cerrar sesión</button>
-      </nav>
-    </header>
+  return (
+    <div className="inicio-cliente">
+      <header className="header">
+        <div className="menu-icon" onClick={toggleMenu}>
+          <FaBars size={24} />
+        </div>
 
-    <button className="add-user-button" onClick={(e) => navigate('/registrarse')}>
-      <FaPlus size={16} /> 
-    </button>
+        <nav className={`dropdown-menu ${isMenuOpen ? 'open' : ''}`}>
+          <Link to="/gestionProductos" className="menu-item" onClick={toggleMenu}>Productos</Link>
+          <Link to="/gestionUsuarios" className="menu-item" onClick={toggleMenu}>Usuarios</Link>
+          <Link to="/gestionPedidos" className="menu-item" onClick={toggleMenu}>Pedidos</Link>
+          <Link to="/estadisticas" className="menu-item" onClick={toggleMenu}>Estadísticas</Link>
+          <button className="menu-item" onClick={cerrarSesion}>Cerrar sesión</button>
+        </nav>
+      </header>
 
-    <main className="main-content-usuarios-admin">
-      <h1>Usuarios:</h1>
+      <button className="add-user-button" onClick={() => navigate('/registrarse')}>
+        <FaPlus size={16} />
+      </button>
 
-      <div className="table-responsive">
-        <table className="usuarios-table">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Teléfono</th>
-              <th>Rol</th>
-              <th>Estado</th>
-              <th>Opciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {usuarios.map((usuario) => (
-              <tr key={usuario.usuario_id}>
-                <td>{usuario.nombre}</td>
-                <td>{usuario.telefono}</td>
-                <td>
-                  <input 
-                    type="checkbox" 
-                    checked={usuario.rol === 'admin'} 
-                    onChange={(e) => handleRolChange(usuario.usuario_id, e.target.checked)}
-                  />
-                </td>
-                <td>
-                  <input 
-                    type="checkbox" 
-                    checked={usuario.estado === 'activo'} 
-                    onChange={(e) => handleEstadoChange(usuario.usuario_id, e.target.checked)}
-                  />
-                </td>
-                <td>
-                <button className="edit-button" onClick={(e) => handleEditarUsuario(usuario.usuario_id)}  >
-                  <FaEdit />
-                </button>
-                  <button className="delete-button " onClick={(e) => handleEliminarUsuario(usuario.usuario_id)}>
-                    <FaTrash />
-                  </button>
-                </td>
+      <main className="main-content-usuarios-admin">
+        <h1>Usuarios:</h1>
+
+        {/* Campo de búsqueda */}
+        <input
+          type="text"
+          placeholder="Buscar por nombre..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
+        />
+
+        <div className="table-responsive">
+          <table className="usuarios-table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Teléfono</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Opciones</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </main>
-  </div>
-);
-
+            </thead>
+            <tbody>
+              {usuariosFiltrados.map((usuario) => (
+                <tr key={usuario.usuario_id}>
+                  <td>{usuario.nombre}</td>
+                  <td>{usuario.telefono}</td>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={usuario.rol === 'admin'}
+                      onChange={(e) => handleRolChange(usuario.usuario_id, e.target.checked)}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={usuario.estado === 'activo'}
+                      onChange={(e) => handleEstadoChange(usuario.usuario_id, e.target.checked)}
+                    />
+                  </td>
+                  <td>
+                    <button className="edit-button" onClick={() => handleEditarUsuario(usuario.usuario_id, rol)}>
+                      <FaEdit />
+                    </button>
+                    <button className="delete-button" onClick={() => handleEliminarUsuario(usuario.usuario_id)}>
+                      <FaTrash />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  );
 }
 
 export default UsuariosAdministrador;
