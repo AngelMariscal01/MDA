@@ -35,7 +35,6 @@ function UsuariosAdministrador() {
       .get('http://localhost:8081/usuarios')
       .then((response) => {
         setUsuarios(response.data.usuarios); // Actualizar el estado con los usuarios
-        console.log(response.data.usuarios);
       })
       .catch((err) => {
         console.log('Error al cargar los usuarios: ', err);
@@ -44,6 +43,9 @@ function UsuariosAdministrador() {
   }, []); // [] asegura que el efecto solo se ejecute una vez al montar
 
   const handleEstadoChange = (usuarioId, nuevoEstado) => {
+    
+    const confirmar = window.confirm('¿Estás seguro de actualizar el estado de este usuario?');
+    if (!confirmar) return;
     const estado = nuevoEstado ? 'activo' : 'inactivo';
     axios
       .post('http://localhost:8081/usuarios/actualizarEstado', { usuarioId, estado })
@@ -61,6 +63,10 @@ function UsuariosAdministrador() {
   };
 
   const handleRolChange = (usuarioId, nuevoEstado) => {
+
+    const confirmar = window.confirm('¿Estás seguro de actualizar el rol de este usuario?');
+    if (!confirmar) return;
+
     const rol = nuevoEstado ? 'admin' : 'cliente';
     axios
       .post('http://localhost:8081/usuarios/actualizarRol', { usuarioId, rol })
@@ -77,10 +83,16 @@ function UsuariosAdministrador() {
       });
   };
 
+  const handleEditarUsuario = (usuarioId) => {
+    navigate(`/perfil/${usuarioId}`, { state: { usuarioId } }); // Redirige a la ruta de edición con el ID del usuario
+  };
+
   const handleEliminarUsuario = (usuarioId) => {
     // Asegúrate de enviar `usuario_id` en lugar de `usuarioId`
 
-    ///// AGREGAR PANTALLA DE CONFIRMACION 
+    const confirmar = window.confirm('¿Estás seguro de eliminar este usuario?');
+    if (!confirmar) return;
+
     axios
       .post('http://localhost:8081/usuarios/eliminar', { usuarioId })
       .then((response) => {
@@ -89,15 +101,10 @@ function UsuariosAdministrador() {
       .catch((err) => {
         console.log('Error al eliminar el usuario: ', err);
         mostrarError('Hubo un error al eliminar el usuario.');
+        
       });
   };
-/*
-  const usuarios = [
-    { id: 1, nombre: 'Juan Perez', telefono: '1234567890', rol: true, estado: true },
-    { id: 2, nombre: 'Maria Lopez', telefono: '0987654321', rol: false, estado: true },
-    // Agrega más usuarios según sea necesario
-  ];
-*/
+
 return (
   <div className="inicio-cliente">
     <header className="header">
@@ -152,7 +159,7 @@ return (
                   />
                 </td>
                 <td>
-                <button className="edit-button" >
+                <button className="edit-button" onClick={(e) => handleEditarUsuario(usuario.usuario_id)}  >
                   <FaEdit />
                 </button>
                   <button className="delete-button " onClick={(e) => handleEliminarUsuario(usuario.usuario_id)}>

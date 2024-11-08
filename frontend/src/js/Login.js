@@ -69,27 +69,19 @@ function IniciarSesion() {
         axios.post('http://localhost:8081/login', values)
         .then((response) => {
             const token = response.data.user.token; // Obtén el objeto de usuario del backend
-            //console.log(token)
             if(token){
               localStorage.setItem('token', token)
-              //console.log(parseJwt(token))
-              
-              if(parseJwt(token).rol === 'admin'){
+              if(parseJwt(token).rol === 'admin' && parseJwt(token).estado === 'activo'){
                 navigate('/inicioAdministrador')
                 window.location.reload();
-              }else if (parseJwt(token).rol === 'cliente'){
+              }else if (parseJwt(token).rol === 'cliente' && parseJwt(token).estado === 'activo'){
                 navigate('/inicioCliente')
                 window.location.reload();
               }
+              else if (parseJwt(token).estado === 'inactivo'){
+                mostrarError('Cuenta inactiva');
+              }
             }
-            /*
-            if (user.rol === 'admin') {
-                console.log('SOS ADMIN')
-                navigate('/inicioAdministrador'); // Redirigir a inicioAdministrador si es administrador
-            } else if (user.rol === 'cliente') {
-                navigate('/inicioCliente'); // Redirigir a inicioCliente si es cliente
-            }
-                */
         })
         .catch(err => {
             console.log('Error en el inicio de sesión: ', err);

@@ -63,7 +63,6 @@ app.post('/registrarUsuario', async (req, res) => {
 // API INICIAR SESION
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
-
     const query = 'SELECT * FROM usuarios WHERE correo = $1';
     const values = [email];
 
@@ -77,6 +76,7 @@ app.post('/login', async (req, res) => {
         const user = result.rows[0];
         const nombre = user.nombre;
         const rol = user.rol;
+        const estado = user.estado;
 
         // Comparar la contraseña ingresada con la contraseña en la base de datos
         const isMatch = await bcrypt.compare(password, user.contrasena);
@@ -87,7 +87,7 @@ app.post('/login', async (req, res) => {
 
         let token;
         try {
-            token = jwt.sign({ nombre, rol }, "Stack", { expiresIn: '3m' });
+            token = jwt.sign({ nombre, rol, estado }, "Stack", { expiresIn: '3m' });
         } catch (err) {
             console.error("Error al generar el token:", err);
             return res.status(500).json({ error: 'Error al generar el token' });
@@ -117,7 +117,6 @@ app.get('/usuarios', async (req, res) => {
         const result = await db.query(query);
         
         // Devolver todos los usuarios en el resultado de la consulta
-        console.log(result.rows)
         return res.json({
             message: 'Usuarios obtenidos correctamente',
             usuarios: result.rows
@@ -128,9 +127,10 @@ app.get('/usuarios', async (req, res) => {
     }
 });
 
+// API ACTUALIZAR ESTADO DEL USUARIO
 app.post('/usuarios/actualizarEstado', (req, res) => {
     const { usuarioId, estado } = req.body;
-  
+
     try {
         // Encriptar la contraseña antes de guardarla
         //const hashedPassword = await bcrypt.hash(password, 10); // 10 es el nivel de "salting"
@@ -152,12 +152,12 @@ app.post('/usuarios/actualizarEstado', (req, res) => {
         console.error('Error en el proceso de actualizacion:', err);
         return res.status(500).json({ error: 'Error en el proceso de actualizacion de estado' });
     }
-  });
+});
 
-
-  app.post('/usuarios/actualizarRol', (req, res) => {
+// API ACTUALIZAR ROL DEL USUARIO
+app.post('/usuarios/actualizarRol', (req, res) => {
     const { usuarioId, rol } = req.body;
-  
+
     try {
         // Encriptar la contraseña antes de guardarla
         //const hashedPassword = await bcrypt.hash(password, 10); // 10 es el nivel de "salting"
@@ -179,39 +179,88 @@ app.post('/usuarios/actualizarEstado', (req, res) => {
         console.error('Error en el proceso de actualizacion:', err);
         return res.status(500).json({ error: 'Error en el proceso de actualizacion de rol' });
     }
-  });
+});
 
-  app.post('/usuarios/eliminar', (req, res) => {
+// API ELIMINAR USUARIO
+app.post('/usuarios/eliminar', (req, res) => {
     const { usuarioId } = req.body;
-    console.log(req.body);
-    console.log(req.headers)
-
-  
     try {
       // Realizar la consulta DELETE usando el UUID
       const query = 'DELETE FROM public.usuarios WHERE usuario_id = $1 RETURNING *;';
       const values = [usuarioId];  // El UUID se pasa directamente en el array de valores
-  
-      db.query(query, values, (err, result) => {
+
+        db.query(query, values, (err, result) => {
         if (err) {
-          console.error('Error de base de datos:', err);
-          return res.status(500).json({ error: 'Error al eliminar el usuario' });
+            console.error('Error de base de datos:', err);
+            return res.status(500).json({ error: 'Error al eliminar el usuario' });
         }
-  
+
         // Si no se ha eliminado ningún registro, devolver un error o mensaje adecuado
         if (result.rowCount === 0) {
-          return res.status(404).json({ error: 'Usuario no encontrado' });
+            return res.status(404).json({ error: 'Usuario no encontrado' });
         }
-  
+
         // Si el usuario fue eliminado correctamente, responder con el mensaje de éxito
         return res.status(200).json({ message: 'Usuario eliminado exitosamente', deletedUser: result.rows[0] });
-      });
+    });
     } catch (err) {
-      console.error('Error en el proceso de eliminación:', err);
-      return res.status(500).json({ error: 'Error en el proceso de eliminación' });
+        console.error('Error en el proceso de eliminación:', err);
+        return res.status(500).json({ error: 'Error en el proceso de eliminación' });
     }
-  });
-  
+});
+
+// API OBTENER USUARIO POR ID
+app.get('/obtenerUsuario', async (req, res) => {
+    const { usuarioId } = req.query;
+
+    const query = 'SELECT nombre, correo, telefono FROM usuarios WHERE usuario_id = $1';
+    const values = [usuarioId];
+
+    try {
+        const result = await db.query(query, values);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+
+        return res.json({ usuario: result.rows[0] });
+    } catch (err) {
+        console.error('Error al obtener usuario:', err);
+        return res.status(500).json({ error: 'Error al obtener usuario' });
+    }
+});
+
+
+/// API ACTUALIZAR USUARIO
+app.post('/actualizarUsuario', async (req, res) => {
+
+    const { nombre, email, telefono, password, usuarioId } = req.body;
+    
+    try {
+        // Encriptar la contraseña antes de guardarla
+        const hashedPassword = await bcrypt.hash(password, 10); // 10 es el nivel de "salting"
+        
+        const query = 'UPDATE public.usuarios SET nombre=$1, correo=$2, telefono=$3, contrasena=$4 WHERE usuario_id=$5;';
+        const values = [
+            nombre,
+            email,
+            telefono,
+            hashedPassword, // Guardar la contraseña encriptada
+            usuarioId
+        ];
+        
+        db.query(query, values, (err, data) => {
+            if (err) {
+                console.error('Database error:', err);
+                return res.status(500).json({ error: 'Database error', details: err });
+            }
+            return res.json(data);
+        });
+    } catch (err) {
+        console.error('Error en el proceso de actualización:', err);
+        return res.status(500).json({ error: 'Error en el proceso de actualización' });
+    }
+});
+
 
 app.listen(8081, () => {
     console.log('listening');

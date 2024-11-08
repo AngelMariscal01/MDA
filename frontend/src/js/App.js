@@ -4,6 +4,7 @@ import Registrarse from "./RegistrarUsuario";
 import InicioCliente from "./InicioCliente";
 import InicioAdministrador from "./InicioAdmin";
 import UsuariosAdministrador from "./UsuariosAdmin";
+import ActualizarUsuario from "./ActualizarUsuario";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 // Función para decodificar el token
@@ -41,6 +42,7 @@ function App() {
         <Route path="/inicioCliente" element={tokenValid && rol === 'cliente' ? <InicioCliente /> : <IniciarSesion />} />
         <Route path="/inicioAdministrador" element={tokenValid && rol === 'admin' ? <InicioAdministrador /> : <IniciarSesion />} />
         <Route path="/gestionUsuarios" element={tokenValid && rol === 'admin' ? <UsuariosAdministrador /> : <IniciarSesion />} />
+        <Route path="/perfil/:usuarioId" element={tokenValid ? <ActualizarUsuario /> : <IniciarSesion />} />
       </Routes>
     </BrowserRouter>
   );
