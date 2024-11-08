@@ -34,10 +34,10 @@ function RecuperarContrasena() {
         }, 3000);
     };
     const mostrarSuccess = (mensaje) => {
-        setError(mensaje);
-        setShowError(true);
+        setSuccess(mensaje);
+        setShowSuccess(true);
         setTimeout(() => {
-            setShowError(false);
+            setShowSuccess(false);
         }, 3000);
     };
 
@@ -79,8 +79,8 @@ function RecuperarContrasena() {
                 </div>
             )}
             {showSuccess && (
-                <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-red-500 text-white p-3 rounded-md shadow-md">
-                    {error}
+                <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-green-500 text-white p-3 rounded-md shadow-md">
+                    {success}
                 </div>
             )}
         </div>

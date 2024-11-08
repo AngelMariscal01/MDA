@@ -285,10 +285,11 @@ app.post('/recuperarContrasena', async (req, res) => {
 
         // Crear un token para el restablecimiento de contraseña
         const user = result.rows[0];
+        console.log(user)
         const resetToken = jwt.sign({ usuarioId: user.usuario_id }, "Stack", { expiresIn: '15m' });
 
         // URL de restablecimiento de contraseña
-        const resetUrl = `http://localhost:8081/restablecerContrasena?token=${resetToken}`;
+        const resetUrl = `http://localhost:3000/restablecerContrasena?token=${resetToken}`;
 
         // Enviar correo electrónico de restablecimiento de contraseña
         await resend.emails.send({
@@ -296,10 +297,19 @@ app.post('/recuperarContrasena', async (req, res) => {
             to: email,
             subject: 'Recuperación de Contraseña',
             html: `
-                <h3>Solicitud de Recuperación de Contraseña</h3>
-                <p>Haz clic en el enlace para restablecer tu contraseña:</p>
-                <a href="${resetUrl}">Restablecer Contraseña</a>
-                <p>El enlace expirará en 15 minutos.</p>
+                <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+                    <h2 style="color: #007BFF;">Recuperación de Contraseña MiniDonasArenita</h2>
+                    <p>Hola,</p>
+                    <p>Hemos recibido una solicitud para restablecer tu contraseña. Si realizaste esta solicitud, por favor haz clic en el enlace de abajo para cambiar tu contraseña:</p>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <a href="${resetUrl}" style="display: inline-block; background-color: #007BFF; color: #fff; padding: 10px 20px; font-size: 16px; font-weight: bold; text-decoration: none; border-radius: 5px;">Restablecer Contraseña</a>
+                    </div>
+                    <p style="font-size: 14px; color: #555;">Este enlace expirará en 15 minutos.</p>
+                    <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+                    <p style="font-size: 12px; color: #888;">Si no solicitaste restablecer tu contraseña, puedes ignorar este correo electrónico. Tu contraseña permanecerá segura.</p>
+                    <p style="font-size: 12px; color: #888;">Gracias,</p>
+                    <p style="font-size: 12px; color: #888;">El equipo de soporte MiniDonasArenita</p>
+                </div>
             `
         });
 
@@ -312,15 +322,17 @@ app.post('/recuperarContrasena', async (req, res) => {
 
 // Endpoint para actualizar la contraseña una vez que el usuario hace clic en el enlace
 app.post('/restablecerContrasena', async (req, res) => {
-    const { token, newPassword } = req.body;
+    const { token, password } = req.body;
+    console.log(password)
 
     try {
         // Verificar el token
         const decoded = jwt.verify(token, "Stack");
         const usuarioId = decoded.usuarioId;
+        console.log(usuarioId)
 
         // Encriptar la nueva contraseña
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        const hashedPassword = await bcrypt.hash(password, 10);
 
         // Actualizar la contraseña en la base de datos
         const query = 'UPDATE usuarios SET contrasena = $1 WHERE usuario_id = $2';
