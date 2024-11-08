@@ -154,7 +154,7 @@ function IniciarSesion() {
       </div>
 
       {/* Olvidaste tu Contraseña */}
-      <a href="" className="text-[#734e97] text-sm text-center underline pb-3 sm:text-base">
+      <a href="/recuperarContrasena" className="text-[#734e97] text-sm text-center underline pb-3 sm:text-base">
         ¿Olvidaste tu Contraseña?
       </a>
 

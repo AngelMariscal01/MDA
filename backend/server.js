@@ -1,17 +1,22 @@
-const express = require("express");
-const postgresql = require("pg");
-const cors = require("cors");
-const { v4: uuidv4 } = require('uuid');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+import express from "express";
+import pkg from "pg";
+import cors from "cors";
+import { v4 as uuidv4 } from "uuid";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { Resend } from "resend";
 
+const { Client } = pkg;
+
+
+const resend = new Resend("re_UhMkMWfG_DG5LP28YShEAZQX4yWdbwEXL"); // Asegúrate de tener tu API key en las variables de entorno
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 
-const db = new postgresql.Pool({
+const db = new Client({
     port: 5432,
     host: 'localhost',
     user: 'postgres',
@@ -260,6 +265,76 @@ app.post('/actualizarUsuario', async (req, res) => {
         return res.status(500).json({ error: 'Error en el proceso de actualización' });
     }
 });
+
+
+
+
+// Endpoint para recuperación de contraseña
+app.post('/recuperarContrasena', async (req, res) => {
+    const { email } = req.body;
+    
+    try {
+        // Verificar si el correo electrónico está registrado
+        const query = 'SELECT * FROM usuarios WHERE correo = $1';
+        const values = [email];
+        const result = await db.query(query, values);
+        
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Correo no encontrado' });
+        }
+
+        // Crear un token para el restablecimiento de contraseña
+        const user = result.rows[0];
+        const resetToken = jwt.sign({ usuarioId: user.usuario_id }, "Stack", { expiresIn: '15m' });
+
+        // URL de restablecimiento de contraseña
+        const resetUrl = `http://localhost:8081/restablecerContrasena?token=${resetToken}`;
+
+        // Enviar correo electrónico de restablecimiento de contraseña
+        await resend.emails.send({
+            from: 'onboarding@resend.dev',
+            to: email,
+            subject: 'Recuperación de Contraseña',
+            html: `
+                <h3>Solicitud de Recuperación de Contraseña</h3>
+                <p>Haz clic en el enlace para restablecer tu contraseña:</p>
+                <a href="${resetUrl}">Restablecer Contraseña</a>
+                <p>El enlace expirará en 15 minutos.</p>
+            `
+        });
+
+        return res.json({ message: 'Correo de recuperación enviado. Revisa tu bandeja de entrada.' });
+    } catch (err) {
+        console.error('Error al enviar correo de recuperación:', err);
+        return res.status(500).json({ error: 'Error al enviar correo de recuperación' });
+    }
+});
+
+// Endpoint para actualizar la contraseña una vez que el usuario hace clic en el enlace
+app.post('/restablecerContrasena', async (req, res) => {
+    const { token, newPassword } = req.body;
+
+    try {
+        // Verificar el token
+        const decoded = jwt.verify(token, "Stack");
+        const usuarioId = decoded.usuarioId;
+
+        // Encriptar la nueva contraseña
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // Actualizar la contraseña en la base de datos
+        const query = 'UPDATE usuarios SET contrasena = $1 WHERE usuario_id = $2';
+        const values = [hashedPassword, usuarioId];
+        
+        await db.query(query, values);
+
+        return res.json({ message: 'Contraseña actualizada exitosamente.' });
+    } catch (err) {
+        console.error('Error al restablecer la contraseña:', err);
+        return res.status(500).json({ error: 'Error al restablecer la contraseña' });
+    }
+});
+
 
 
 app.listen(8081, () => {
