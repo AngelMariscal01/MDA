@@ -1,0 +1,92 @@
+.registrar-producto {
+    max-width: 5000px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #27004b;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    line-height:2.205;
+}
+
+.add-product-form {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ff48f6;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.add-product-form h2 {
+    color: #4d3dac;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.add-product-form label {
+    display: block;
+    margin: 10px 0 5px;
+    font-weight: bold;
+}
+
+.add-product-form input[type="text"],
+.add-product-form input[type="number"],
+.add-product-form textarea,
+.add-product-form select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.add-product-form .category-selector {
+    display: grid;
+    grid-template-columns: 1fr; /* Solo una columna para el título */
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.add-product-form .category-title {
+    grid-column: 1 / -1; /* Ocupa toda la fila */
+    text-align: center; /* Centra el título */
+    font-size: 1.5rem;
+    margin-bottom: 10px; /* Espacio debajo del título */
+}
+
+.add-product-form .checkbox-container {
+    display: flex;
+    align-items: center;
+}
+
+.add-product-form .checkbox-container input {
+    margin-right: 8px; /* Espacio entre el checkbox y el texto */
+}
+
+.add-product-form .category-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Mínimo 200px por columna */
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.add-product-form button {
+    width: 100%;
+    padding: 10px;
+    background-color: #4d3dac;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.add-product-form button:hover {
+    background-color: #3b2d92;
+}
+
+.image-preview {
+    width: 100%;
+    margin-top: 10px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}

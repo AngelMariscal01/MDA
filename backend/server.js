@@ -5,13 +5,24 @@ import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Resend } from "resend";
+import multer from "multer";
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const app = express();
+// Definir __filename y __dirname manualmente
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.resolve();
+
+// Luego puedes usar __dirname como normalmente
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const { Client } = pkg;
 
 
 const resend = new Resend("re_UhMkMWfG_DG5LP28YShEAZQX4yWdbwEXL"); // Asegúrate de tener tu API key en las variables de entorno
 
-const app = express();
+
 app.use(cors());
 app.use(express.json());
 
@@ -93,7 +104,7 @@ app.post('/login', async (req, res) => {
 
         let token;
         try {
-            token = jwt.sign({ nombre, rol, estado, usuario_id }, "Stack", { expiresIn: '3m' });
+            token = jwt.sign({ nombre, rol, estado, usuario_id }, "Stack", { expiresIn: '60m' });
         } catch (err) {
             console.error("Error al generar el token:", err);
             return res.status(500).json({ error: 'Error al generar el token' });
@@ -348,6 +359,183 @@ app.post('/restablecerContrasena', async (req, res) => {
     }
 });
 
+
+/*AGREGAR CATEGORIA*/
+app.post('/agregarCategoria', async (req, res) => {
+    const { nombre } = req.body;
+
+    try {
+        const query = 'INSERT INTO categorias (categoria_id, nombre_categoria) VALUES ($1, $2)';
+        const values = [newId(), nombre];
+        await db.query(query, values);
+
+        return res.json({ message: 'Categoria agregada exitosamente.' });
+    } catch (err) {
+        console.error('Error al agregar la categoria:', err);
+        return res.status(500).json({ error: 'Error al agregar la categoria' });
+    }
+});
+
+/*Obtener categorias*/
+app.get('/obtenerCategorias', async (req, res) => {
+    try {
+        const query = 'SELECT * FROM categorias';
+        const result = await db.query(query);
+        return res.json({
+            message: 'Categorias obtenidas exitosamente.',
+            categorias: result.rows});
+    } catch (err) {
+        console.error('Error al obtener las categorias:', err);
+        return res.status(500).json({ error: 'Error al obtener las categorias' });
+    }
+}) 
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${Date.now()}-${file.originalname}`);
+    }
+});
+
+const upload = multer({ storage });
+
+// Endpoint para agregar un producto //!LA IMAGEN URL SE CAMBIARA CUANDO ESTE S3
+app.post('/agregarProducto', upload.single('imagen'), async (req, res) => {
+    const { nombre, descripcion, precio, stock, categorias, cantidad_piezas } = req.body;
+    const categoriasArray = JSON.parse(categorias); // Parsear el string recibido a un array
+    const imagenUrl = req.file ? `/uploads/${req.file.filename}` : null; // URL de la imagen guardada
+
+    try {
+        // Insertar el producto en la base de datos
+        const queryProducto = 'INSERT INTO productos (producto_id, nombre, descripcion, precio, stock, cantidad_piezas, imagen, estado) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING producto_id';
+        const valuesProducto = [newId(), nombre, descripcion, precio, stock, cantidad_piezas, imagenUrl, 'activo'];
+        const result = await db.query(queryProducto, valuesProducto);
+        const productoId = result.rows[0].producto_id;
+
+        // Insertar las categorías en la tabla de relación
+        for (const categoriaId of categoriasArray) {
+            const queryCategoria = 'INSERT INTO productoscategorias (producto_id, categoria_id) VALUES ($1, $2)';
+            await db.query(queryCategoria, [productoId, categoriaId]);
+        }
+
+        return res.json({ message: 'Producto agregado exitosamente.' });
+    } catch (err) {
+        console.error('Error al agregar el producto:', err);
+        return res.status(500).json({ error: 'Error al agregar el producto' });
+    }
+});
+
+// Endpoint para obtener todos los productos
+app.get('/obtenerProductos', async (req, res) => {
+    try {
+        const query = 'SELECT * FROM productos';
+        const result = await db.query(query);
+        return res.json({
+            message: 'Productos obtenidos exitosamente.',
+            productos: result.rows
+        });
+    } catch (err) {
+        console.error('Error al obtener los productos:', err);
+        return res.status(500).json({ error: 'Error al obtener los productos' });
+    }
+});
+
+//Endpoint para obtener las categorias de un producto
+app.get('/obtenerCategoriasProducto', async (req, res) => {
+    const { productoId } = req.query;
+
+    try {
+        const query = 'SELECT productoscategorias.categoria_id, categorias.nombre_categoria FROM productoscategorias INNER JOIN categorias ON productoscategorias.categoria_id = categorias.categoria_id WHERE producto_id = $1';
+        const values = [productoId];
+        const result = await db.query(query, values);
+        return res.json({    
+            message: 'Categorias obtenidas exitosamente.',
+            categorias: result.rows
+        }); 
+    } catch (err) {
+        console.error('Error al obtener las categorias del producto:', err);
+        return res.status(500).json({ error: 'Error al obtener las categorias del producto' });
+    }
+})
+
+app.post('/actualizarProducto', upload.single('imagen'), async (req, res) => {
+    const { producto_id, nombre, descripcion, precio, stock, categorias, cantidad_piezas } = req.body;
+    const categoriasArray = JSON.parse(categorias); // Parsear las categorías a un array
+    const imagenUrl = req.file ? `/uploads/${req.file.filename}` : null; // Si hay nueva imagen, usarla
+
+    try {
+        // Actualizar producto en la base de datos
+        const queryProducto = `
+            UPDATE productos 
+            SET nombre = $1, descripcion = $2, precio = $3, stock = $4, cantidad_piezas = $5, 
+                imagen = COALESCE($6, imagen), estado = 'activo' 
+            WHERE producto_id = $7
+            RETURNING producto_id;
+        `;
+        const valuesProducto = [nombre, descripcion, precio, stock, cantidad_piezas, imagenUrl, producto_id];
+        await db.query(queryProducto, valuesProducto);
+
+        // Actualizar las categorías del producto en la relación
+        // Primero, eliminamos las categorías existentes
+        await db.query('DELETE FROM productoscategorias WHERE producto_id = $1', [producto_id]);
+
+        // Luego, insertamos las nuevas categorías
+        for (const categoriaId of categoriasArray) {
+            const queryCategoria = 'INSERT INTO productoscategorias (producto_id, categoria_id) VALUES ($1, $2)';
+            await db.query(queryCategoria, [producto_id, categoriaId]);
+        }
+
+        return res.json({ message: 'Producto actualizado exitosamente.' });
+    } catch (err) {
+        console.error('Error al actualizar el producto:', err);
+        return res.status(500).json({ error: 'Error al actualizar el producto' });
+    }
+});
+
+//Endpoint para obtener las categorias de todos los productos
+app.get('/obtenerCategoriasProductos', (req, res) => {
+    // Query para obtener las categorías con el producto_id y nombre de la categoría
+    const query = `
+        SELECT p.producto_id, c.categoria_id, c.nombre_categoria
+        FROM productos p
+        JOIN productoscategorias pc ON p.producto_id = pc.producto_id
+        JOIN categorias c ON pc.categoria_id = c.categoria_id
+    `;
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: 'Error al obtener las categorías de productos' });
+        }
+        res.json({ categorias: results.rows });
+    });
+});
+
+//Endpoint para eliminar un producto
+app.post('/eliminarProducto', async (req, res) => {
+    const { producto_id } = req.body;
+    try {
+        const query = 'DELETE FROM productos WHERE producto_id = $1';
+        await db.query(query, [producto_id]);
+        return res.json({ message: 'Producto eliminado exitosamente.' });
+    } catch (err) {
+        console.error('Error al eliminar el producto:', err);    
+        return res.status(500).json({ error: 'Error al eliminar el producto' });
+    }
+});
+// Endpoint para actualizar estado de un producto
+app.post('/actualizarEstadoProducto', async (req, res) => {
+    const { producto_id, estado } = req.body;
+    try {
+        const query = 'UPDATE productos SET estado = $1 WHERE producto_id = $2';
+        await db.query(query, [estado, producto_id]);
+        return res.json({ message: 'Estado del producto actualizado exitosamente.' });
+    } catch (err) {
+        console.error('Error al actualizar el estado del producto:', err);
+        return res.status(500).json({ error: 'Error al actualizar el estado del producto' });
+    }
+});
 
 
 app.listen(8081, () => {

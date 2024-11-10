@@ -7,6 +7,9 @@ import UsuariosAdministrador from "./UsuariosAdmin";
 import ActualizarUsuario from "./ActualizarUsuario";
 import RecuperarContrasena from "./RecuperarContrasena";
 import RestablecerContrasena from "./RestablecerContrasena";
+import ProductosAdministrador from "./ProductosAdmin";
+import RegistrarProducto from "./RegistrarProducto";
+import ActualizarProducto from "./ActualizarProducto";
 import Contacto from "./Contacto";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
@@ -46,6 +49,9 @@ function App() {
         <Route path="/inicioCliente" element={tokenValid && rol === 'cliente' ? <InicioCliente /> : <IniciarSesion />} />
         <Route path="/inicioAdministrador" element={tokenValid && rol === 'admin' ? <InicioAdministrador /> : <IniciarSesion />} />
         <Route path="/gestionUsuarios" element={tokenValid && rol === 'admin' ? <UsuariosAdministrador /> : <IniciarSesion />} />
+        <Route path="/gestionProductos" element={tokenValid && rol === 'admin' ? <ProductosAdministrador /> : <IniciarSesion />} />
+        <Route path="/crearProducto" element={tokenValid && rol === 'admin' ? <RegistrarProducto /> : <IniciarSesion />} />
+        <Route path="/editarProducto/:productoId" element={tokenValid && rol === 'admin' ? <ActualizarProducto /> : <IniciarSesion />} />
         <Route path="/perfil/:usuarioId" element={tokenValid ? <ActualizarUsuario /> : <IniciarSesion />} />
         <Route path="/restablecerContrasena" element={<RestablecerContrasena />} />
         <Route path="/contacto" element={<Contacto />} />
