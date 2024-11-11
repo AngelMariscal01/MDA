@@ -10,6 +10,8 @@ import RestablecerContrasena from "./RestablecerContrasena";
 import ProductosAdministrador from "./ProductosAdmin";
 import RegistrarProducto from "./RegistrarProducto";
 import ActualizarProducto from "./ActualizarProducto";
+import ProductosCliente from "./ProductosCliente";
+import Carrito from "./Carrito";
 import Contacto from "./Contacto";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
@@ -47,6 +49,10 @@ function App() {
         <Route path="/registrarse" element={<Registrarse />} />
         <Route path="/recuperarContrasena" element={<RecuperarContrasena />} />
         <Route path="/inicioCliente" element={tokenValid && rol === 'cliente' ? <InicioCliente /> : <IniciarSesion />} />
+        <Route path="/productos" element={tokenValid && rol === 'cliente' ? <ProductosCliente /> : <IniciarSesion />} />
+        <Route path="/carrito" element={tokenValid && rol === 'cliente' ? <Carrito /> : <IniciarSesion />} />
+
+
         <Route path="/inicioAdministrador" element={tokenValid && rol === 'admin' ? <InicioAdministrador /> : <IniciarSesion />} />
         <Route path="/gestionUsuarios" element={tokenValid && rol === 'admin' ? <UsuariosAdministrador /> : <IniciarSesion />} />
         <Route path="/gestionProductos" element={tokenValid && rol === 'admin' ? <ProductosAdministrador /> : <IniciarSesion />} />

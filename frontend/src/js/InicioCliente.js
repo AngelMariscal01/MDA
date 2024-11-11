@@ -32,9 +32,9 @@ function InicioCliente() {
 
         {/* Dropdown menu */}
         <nav className={`dropdown-menu ${isMenuOpen ? 'open' : ''}`}>
-          <Link to="/productos" className="menu-item" onClick={toggleMenu}>Productos</Link>
-          <Link to="/pedidos" className="menu-item" onClick={toggleMenu}>Pedidos</Link>
-          <Link to="/carrito" className="menu-item" onClick={toggleMenu}>Carrito</Link>
+          <Link to="/productos" state={{ usuarioId, rol }} className="menu-item" onClick={toggleMenu}>Productos</Link>
+          <Link to="/pedidos" state={{ usuarioId, rol }} className="menu-item" onClick={toggleMenu}>Pedidos</Link>
+          <Link to="/carrito" state={{ usuarioId, rol }} className="menu-item" onClick={toggleMenu}>Carrito</Link>
           <Link to={`/perfil/${usuarioId}`} state={{ usuarioId, rol }} className="menu-item" onClick={toggleMenu}>Perfil</Link>
           <Link to="/contacto" className="menu-item" onClick={toggleMenu}>Contacto</Link>
           {/* Botón de Cerrar sesión */}

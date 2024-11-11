@@ -442,6 +442,21 @@ app.get('/obtenerProductos', async (req, res) => {
     }
 });
 
+// Endpoint para obtener todos los productos Cliente
+app.get('/obtenerProductosCliente', async (req, res) => {
+    try {
+        const query = 'SELECT * FROM productos where estado = \'activo\'';
+        const result = await db.query(query);
+        return res.json({
+            message: 'Productos obtenidos exitosamente.',
+            productos: result.rows
+        });
+    } catch (err) {
+        console.error('Error al obtener los productos:', err);
+        return res.status(500).json({ error: 'Error al obtener los productos' });
+    }
+});
+
 //Endpoint para obtener las categorias de un producto
 app.get('/obtenerCategoriasProducto', async (req, res) => {
     const { productoId } = req.query;
@@ -536,6 +551,79 @@ app.post('/actualizarEstadoProducto', async (req, res) => {
         return res.status(500).json({ error: 'Error al actualizar el estado del producto' });
     }
 });
+
+
+// Endpoint para agregar producto al carrito
+app.post('/agregarAlCarrito', async (req, res) => {
+    const { usuario_id, producto_id, cantidad } = req.body;
+
+    try {
+        // Verificar si el producto ya está en el carrito del usuario
+        const queryCheck = 'SELECT cantidad FROM carrito WHERE usuario_id = $1 AND producto_id = $2';
+        const valuesCheck = [usuario_id, producto_id];
+        const resultCheck = await db.query(queryCheck, valuesCheck);
+
+        if (resultCheck.rows.length > 0) {
+            // Si el producto ya está en el carrito, actualizar la cantidad
+            const nuevaCantidad = resultCheck.rows[0].cantidad + cantidad;
+            const queryUpdate = 'UPDATE carrito SET cantidad = $1 WHERE usuario_id = $2 AND producto_id = $3';
+            await db.query(queryUpdate, [nuevaCantidad, usuario_id, producto_id]);
+        } else {
+            // Si el producto no está en el carrito, insertarlo como nuevo registro
+            const queryInsert = 'INSERT INTO carrito (carrito_id, usuario_id, producto_id, cantidad, fecha_agregado) VALUES ($1, $2, $3, $4, $5)';
+            await db.query(queryInsert, [newId(),usuario_id, producto_id, cantidad, new Date()]);
+        }
+
+        return res.json({ message: 'Producto agregado al carrito exitosamente.' });
+    } catch (err) {
+        console.error('Error al agregar el producto al carrito:', err);
+        return res.status(500).json({ error: 'Error al agregar el producto al carrito' });
+    }
+});
+// Ruta para obtener el carrito de un usuario
+app.get('/obtenerCarrito/:usuario_id', async (req, res) => {
+    const {idUsuario} = req.query;
+    try {
+      // Consultar los productos en el carrito del usuario
+        const result = await db.query(`
+        SELECT p.nombre, p.cantidad_piezas, p.precio, c.cantidad, p.imagen, p.producto_id, c.usuario_id
+        FROM carrito c
+        JOIN productos p ON c.producto_id = p.producto_id
+        WHERE c.usuario_id = $1
+        `, [idUsuario]);
+        if (result.rows.length === 0) {
+            return res.json({ message: 'No hay productos en el carrito' });
+        }
+        return res.json({    
+            message: 'Carrito exitosamente.',
+            carrito: result.rows
+        }); 
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Error al obtener el carrito' });
+    }
+});
+
+// Ruta para eliminar un producto del carrito
+app.post('/eliminarDelCarrito', async (req, res) => {
+    const { producto_id, usuario_id } = req.body;
+    try {
+      // Eliminar el producto del carrito
+        const result = await db.query(`
+            DELETE FROM carrito
+            WHERE usuario_id = $1 AND producto_id = $2
+            RETURNING *
+        `, [usuario_id, producto_id]);
+        if (result.rowCount === 0) {
+            return res.status(404).json({ message: 'Producto no encontrado en el carrito' });
+        }
+        return res.json({ message: 'Producto eliminado del carrito con éxito' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error al eliminar el producto del carrito' });
+    }
+});
+
 
 
 app.listen(8081, () => {

@@ -115,3 +115,112 @@
     border-radius: 4px;
     margin: 10px;
 }
+
+.producto-actions {
+    display: flex;
+    justify-content:space-around;
+    align-items: center;
+    text-align: center;
+    color: #fff;
+    cursor: pointer;
+    max-width: 1000px;
+}
+.cantidad-btn {
+    padding: 1px 20px;
+    border: none;
+    border-radius: 4px;
+    background-color: #4d3dac;
+    color: #fff;
+    cursor: pointer;
+    margin: 5px;
+    font-size: 1.4rem;
+}
+.carrito-btn{
+    padding: 1px 20px;
+    border: none;
+    border-radius: 4px;
+    background-color: #e5ddee;
+    color: #292222;
+    cursor: pointer;
+    margin: 5px;
+}
+
+.producto-actions span {
+    padding: 1px 20px;
+    border: none;
+    border-radius: 4px;
+    background-color: #d084fc;
+    color: #fff;
+    text-align: center;
+    cursor: pointer;
+    margin: 10px;
+    font-size: 1.4rem;
+}
+
+.product-description {
+    font-size: 1rem;
+    color: #000000;
+    font: bold;
+    margin: 5px;
+    width: 90%;
+    max-width: 1000px;
+}
+
+.product-price {
+    font-size: 1.2rem;
+    color: #410081;
+    margin: 5px;
+    width: 90%;
+    max-width: 1000px;
+}
+
+/* Notas y dirección */
+.carrito-extra {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 800px;
+    margin-top: 20px;
+}
+
+.notas,
+.direccion {
+    width: 80%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #4d3dac;
+    margin: 10px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+/* Estilo del contenedor final de la compra */
+.carrito-final {
+    display: flex;
+    flex-direction:row;
+    align-items: center;
+    gap: 15px;
+    margin: 20px;
+}
+
+.comprar {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    background-color: #4d3dac;
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.comprar:hover {
+    background-color: #321ab9;
+}
+
+.total {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #4d3dac;
+}

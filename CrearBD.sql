@@ -81,6 +81,17 @@ CREATE TABLE HistorialEstadosPedidos (
     estado_nuevo_id UUID REFERENCES EstadosPedidos(estado_id),
     motivo TEXT
 );
+-- Crear la tabla Carrito
+CREATE TABLE Carrito (
+    carrito_id UUID PRIMARY KEY, -- ID único para cada carrito, útil si quieres tener un identificador del carrito en sí
+    usuario_id UUID REFERENCES Usuarios(usuario_id) ON DELETE CASCADE, -- Relación con el usuario que agregó productos al carrito
+    producto_id UUID REFERENCES Productos(producto_id) ON DELETE CASCADE, -- Relación con el producto
+    cantidad INT NOT NULL, -- Cantidad de unidades de este producto en el carrito
+    fecha_agregado TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP -- Fecha en la que se agregó el producto
+);
+
+-- Crear índice en usuario_id para facilitar la búsqueda del carrito por usuario
+CREATE INDEX idx_carrito_usuario_id ON Carrito (usuario_id);
 
 -- Crear índices en campos que podrían ser consultados frecuentemente
 CREATE INDEX idx_usuarios_estado ON Usuarios (estado);
