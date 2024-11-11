@@ -1,4 +1,3 @@
-
 CREATE DATABASE 'MDA';
 
 -- Crear la tabla Usuarios
