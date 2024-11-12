@@ -12,14 +12,44 @@
     margin: 10px;
 }
 
-.search-input-pedidos {
+.search-bar-pedidos {
+    display: flex;
+    flex-wrap: wrap; /* Permite que los elementos se ajusten a la siguiente línea si es necesario */
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    width: 90%; /* Hace que el contenedor ocupe todo el ancho disponible */
+}
+
+.search-input-pedidos,
+.search-input-productos-admin,
+.filter-input-pedidos,
+.filter-select-pedidos {
     padding: 5px;
     border: 1px solid #4d3dac;
     border-radius: 4px;
-    width: 90%;
-    max-width: 1000px;
-    margin-bottom: 1px;
+    margin-bottom: 10px; /* Añade un poco de espacio entre los elementos */
+    box-sizing: border-box; /* Asegura que el padding no afecte al ancho total */
 }
+
+/* Responsivo para pantallas grandes */
+.search-input-pedidos,
+.search-input-productos-admin,
+.filter-input-pedidos,
+.filter-select-pedidos {
+    width: 49%; /* Ocupa el 48% del espacio disponible para que quepan dos en una fila */
+}
+
+/* En pantallas más pequeñas, que los inputs ocupen el 100% del ancho */
+@media (max-width: 768px) {
+    .search-input-pedidos,
+    .search-input-productos-admin,
+    .filter-input-pedidos,
+    .filter-select-pedidos {
+        width: 100%; /* Los inputs ocupan todo el ancho */
+    }
+}
+
 
 .table-responsive {
     overflow-x: auto;
@@ -67,4 +97,40 @@
 
 .delete-button:hover {
     color: #dc3545;
+}
+
+
+
+/* Responsividad para pantallas pequeñas */
+@media (max-width: 768px) {
+    .main-content-pedidos-admin h1 {
+        font-size: 1.5rem;
+    }
+
+    .search-input-pedidos {
+        width: 100%;
+    }
+
+    .table-responsive {
+        padding: 0 10px;
+    }
+
+    .pedidos-table th, 
+    .pedidos-table td {
+        padding: 8px;
+        font-size: 0.78rem;
+    }
+}
+
+/* Responsividad para pantallas muy pequeñas */
+@media (max-width: 480px) {
+    .main-content-pedidos-admin h1 {
+        font-size: 1.2rem;
+    }
+
+    .info-button, 
+    .delete-button {
+        font-size: 1rem;
+        margin-right: 5px;
+    }
 }

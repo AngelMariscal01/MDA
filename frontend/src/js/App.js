@@ -14,7 +14,8 @@ import ProductosCliente from "./ProductosCliente";
 import Carrito from "./Carrito";
 import Contacto from "./Contacto";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Pedidos from '../js/Pedidos';
+import PedidosAdmin from './Pedidos';
+import PedidosCliente from "./PedidosCliente";
 // Función para decodificar el token
 function parseJwt(token) {
   const base64Url = token.split('.')[1];
@@ -51,17 +52,19 @@ function App() {
         <Route path="/inicioCliente" element={tokenValid && rol === 'cliente' ? <InicioCliente /> : <IniciarSesion />} />
         <Route path="/productos" element={tokenValid && rol === 'cliente' ? <ProductosCliente /> : <IniciarSesion />} />
         <Route path="/carrito" element={tokenValid && rol === 'cliente' ? <Carrito /> : <IniciarSesion />} />
+        <Route path="/pedidos" element={tokenValid && rol === 'cliente' ? <PedidosCliente /> : <IniciarSesion />} />
 
 
         <Route path="/inicioAdministrador" element={tokenValid && rol === 'admin' ? <InicioAdministrador /> : <IniciarSesion />} />
         <Route path="/gestionUsuarios" element={tokenValid && rol === 'admin' ? <UsuariosAdministrador /> : <IniciarSesion />} />
         <Route path="/gestionProductos" element={tokenValid && rol === 'admin' ? <ProductosAdministrador /> : <IniciarSesion />} />
         <Route path="/crearProducto" element={tokenValid && rol === 'admin' ? <RegistrarProducto /> : <IniciarSesion />} />
+        <Route path="/gestionPedidos" element={tokenValid && rol === 'admin' ? <PedidosAdmin /> : <IniciarSesion />} />
         <Route path="/editarProducto/:productoId" element={tokenValid && rol === 'admin' ? <ActualizarProducto /> : <IniciarSesion />} />
         <Route path="/perfil/:usuarioId" element={tokenValid ? <ActualizarUsuario /> : <IniciarSesion />} />
         <Route path="/restablecerContrasena" element={<RestablecerContrasena />} />
         <Route path="/contacto" element={<Contacto />} />
-        <Route path="/gestionPedidos" element={<Pedidos />} />
+        
       </Routes>
     </BrowserRouter>
   );

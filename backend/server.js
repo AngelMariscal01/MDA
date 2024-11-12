@@ -665,6 +665,41 @@ app.post('/realizarPedido', async (req, res) => {
     }
 });
 
+
+app.get('/obtenerPedidos', async (req, res) => {
+    try {
+        const result = await db.query(`
+            SELECT p.pedido_id, e.estado_nombre, p.fecha_pedido
+            FROM pedidos p
+            JOIN estadospedidos e ON p.estado_id = e.estado_id
+        `);
+        res.json(result.rows);
+    } catch (err) {
+        console.error('Error al obtener pedidos:', err);
+        res.status(500).json({ error: 'Error al obtener pedidos' });
+    }
+});
+
+app.get('/obtenerPedidosCliente', async (req, res) => {
+    try {
+        const {idUsuario} = req.query;
+        const result = await db.query(`
+            SELECT p.pedido_id, e.estado_nombre, p.fecha_pedido
+            FROM pedidos p
+            JOIN estadospedidos e ON p.estado_id = e.estado_id
+            WHERE p.usuario_id = $1
+        `, [idUsuario]);
+        if (result.rows.length === 0) {
+            return res.json({ message: 'No hay pedidos' });
+        }
+        res.json(result.rows);
+    } catch (err) {
+        console.error('Error al obtener pedidos:', err);
+        res.status(500).json({ error: 'Error al obtener pedidos' });
+    }
+});
+
+
 function newId() {
     return uuidv4();
 }

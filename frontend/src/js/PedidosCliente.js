@@ -1,22 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FaBars, FaInfoCircle, FaTrash } from 'react-icons/fa';
 import '../css/Pedidos.css';
 import axios from 'axios';
 
-function PedidosAdmin() {
+function PedidosCliente() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [pedidos, setPedidos] = useState([]);
     const [fechaFiltro, setFechaFiltro] = useState('');
     const [estadoFiltro, setEstadoFiltro] = useState('');
+    const location = useLocation();
+    const  {usuarioId, rol}  = location.state || {};
+    console.log(usuarioId, rol);
     const navigate = useNavigate();
+
+    
+    const cerrarSesion = () => {
+        localStorage.removeItem('token');
+        navigate('/');
+        window.location.reload();
+    };
+    
 
     useEffect(() => {
         // Llamar a la API para obtener los pedidos
         axios
-            .get(`http://localhost:8081/obtenerPedidos`)
+            .get(`http://localhost:8081/obtenerPedidosCliente`, {
+                params: { idUsuario: usuarioId }
+            })
             .then((response) => {
+                console.log('Pedidos obtenidos:', response.data);
                 setPedidos(response.data);
             })
             .catch((error) => {
@@ -46,11 +60,6 @@ function PedidosAdmin() {
             // Aquí puedes llamar a una API para eliminar el pedido en la base de datos
         }
     };
-    const cerrarSesion = () => {
-        localStorage.removeItem('token');
-        navigate('/');
-        window.location.reload();
-    };
 
     const formatFecha = (fecha) => {
         const fechaObj = new Date(fecha);
@@ -70,17 +79,14 @@ function PedidosAdmin() {
                 <div className="menu-icon" onClick={toggleMenu}>
                     <FaBars size={24} />
                 </div>
+
                 <nav className={`dropdown-menu ${isMenuOpen ? 'open' : ''}`}>
-                    <Link to="/gestionProductos" className="menu-item" onClick={toggleMenu}>
-                        Productos
-                    </Link>
-                    <Link to="/gestionUsuarios" className="menu-item" onClick={toggleMenu}>
-                        Usuarios
-                    </Link>
-                    <Link to="/gestionPedidos" className="menu-item" onClick={toggleMenu}>
-                        Pedidos
-                    </Link>
-                    <Link to="/estadisticas" className="menu-item" onClick={toggleMenu}>Estadísticas</Link>
+                    <Link to="/productos" state={{ usuarioId, rol }} className="menu-item" onClick={toggleMenu}>Productos</Link>
+                    <Link to="/pedidos" state={{ usuarioId, rol }} className="menu-item" onClick={toggleMenu}>Pedidos</Link>
+                    <Link to="/carrito" state={{ usuarioId, rol }} className="menu-item" onClick={toggleMenu}>Carrito</Link>
+                    <Link to={`/perfil/${usuarioId}`} state={{ usuarioId, rol }} className="menu-item" onClick={toggleMenu}>Perfil</Link>
+                    <Link to="/contacto" className="menu-item" onClick={toggleMenu}>Contacto</Link>
+                    {/* Botón de Cerrar sesión */}
                     <button className="menu-item" onClick={cerrarSesion}>Cerrar sesión</button>
                 </nav>
             </header>
@@ -163,4 +169,4 @@ function PedidosAdmin() {
     );
 }
 
-export default PedidosAdmin;
+export default PedidosCliente;
