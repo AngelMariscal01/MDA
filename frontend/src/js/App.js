@@ -14,7 +14,7 @@ import ProductosCliente from "./ProductosCliente";
 import Carrito from "./Carrito";
 import Contacto from "./Contacto";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-
+import Pedidos from '../js/Pedidos';
 // Función para decodificar el token
 function parseJwt(token) {
   const base64Url = token.split('.')[1];
@@ -61,6 +61,7 @@ function App() {
         <Route path="/perfil/:usuarioId" element={tokenValid ? <ActualizarUsuario /> : <IniciarSesion />} />
         <Route path="/restablecerContrasena" element={<RestablecerContrasena />} />
         <Route path="/contacto" element={<Contacto />} />
+        <Route path="/gestionPedidos" element={<Pedidos />} />
       </Routes>
     </BrowserRouter>
   );
