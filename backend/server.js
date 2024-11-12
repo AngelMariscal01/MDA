@@ -624,12 +624,52 @@ app.post('/eliminarDelCarrito', async (req, res) => {
     }
 });
 
+// Endpoint para realizar un pedido
+app.post('/realizarPedido', async (req, res) => {
+    try {
+        const { usuario_id, direccion, notas, productos } = req.body;
 
+        // Calcular el total del pedido
+        const total = productos.reduce((sum, product) => sum + product.precio_unitario * product.cantidad, 0);
+
+        // Crear el ID y registrar el pedido
+        const pedido_id =  newId();
+        const fecha_pedido = new Date();
+
+        await db.query(`
+            INSERT INTO Pedidos (pedido_id, usuario_id, fecha_pedido, direccion, notas, total, estado_id)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `, [pedido_id, usuario_id, fecha_pedido, direccion, notas, total, '35d48694-9551-4f0f-aa08-e152356a96bb']); //! Cambiar id de estado si es necesario
+
+        // Agregar detalles de cada producto en el carrito a DetallesPedido
+        for (const product of productos) {
+            const detalle_pedido_id = newId();
+            const subtotal = product.precio_unitario * product.cantidad;
+
+            await db.query(`
+                INSERT INTO DetallesPedido (detalle_pedido_id, pedido_id, producto_id, cantidad, precio_unitario, subtotal)
+                VALUES ($1, $2, $3, $4, $5, $6)
+            `, [detalle_pedido_id, pedido_id, product.producto_id, product.cantidad, product.precio_unitario, subtotal]);
+        }
+
+        await db.query(`
+            DELETE FROM carrito
+            WHERE usuario_id = $1
+            RETURNING *
+        `, [usuario_id]);
+
+        return res.json({ message: 'Pedido realizado con éxito', pedido_id });
+    } catch (err) {
+        console.error('Error al realizar el pedido:', err);
+        res.status(500).json({ error: 'Error al realizar el pedido' });
+    }
+});
+
+function newId() {
+    return uuidv4();
+}
 
 app.listen(8081, () => {
     console.log('listening');
 })
 
-function newId() {
-    return uuidv4();
-}

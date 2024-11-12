@@ -49,7 +49,11 @@ function Carrito() {
     const [productos, setProductos] = useState([]);
     const [cantidades, setCantidades] = useState({});
     const location = useLocation();
+    const [notas, setNotas] = useState('');
+    const [direccion, setDireccion] = useState('');
     const { usuarioId, rol } = location.state || {};
+    const [error, setError] = useState('');
+    const [showError, setShowError] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -111,6 +115,37 @@ function Carrito() {
         navigate('/');
         window.location.reload();
     };
+    const mostrarError = (mensaje) => {
+        setError(mensaje);
+        setShowError(true);
+        setTimeout(() => {
+        setShowError(false);
+        }, 3000); // Oculta el mensaje después de 3 segundos
+    };
+
+    const handleRealizarPedido = () => {
+        if (!direccion || !notas) {
+            mostrarError('Por favor, complete todos los campos.');
+            return;
+        }
+        axios.post('http://localhost:8081/realizarPedido', {
+            usuario_id: usuarioId,
+            direccion,
+            notas,
+            productos: productos.map((product) => ({
+                producto_id: product.producto_id,
+                cantidad: cantidades[product.producto_id],
+                precio_unitario: product.precio
+            }))
+        })
+        .then(response => {
+            console.log('Pedido realizado con éxito:', response.data);
+            window.location.reload();
+        })
+        .catch(error => {
+            console.error('Error al realizar el pedido:', error);
+        });
+    };
 
     return (
         <div className="inicio-cliente">
@@ -131,7 +166,8 @@ function Carrito() {
             <main className="main-content-productos-admin">
                 <h1>Carrito de compras:</h1>
                 <div className="product-grid">
-                    {productos.map((product) => (
+                    {productos.length === 0 ? <p>No hay productos en el carrito.</p>
+                    :productos.map((product) => (
                         <ProductCard
                             key={product.producto_id}
                             product={product}
@@ -140,17 +176,30 @@ function Carrito() {
                             disminuirCantidad={disminuirCantidad}
                             onDelete={handleDeleteProducto}
                         />
-                    ))}
+                    ))
+                    }
+
                 </div>
+                {productos.length === 0 ? <p>Ingrese al apartado de productos para comprar.</p> : 
+                <>
                 <div className="carrito-extra">
                     <h2>Notas:</h2>
-                    <textarea className="notas" placeholder="Escribe tus notas aquí..."></textarea>
-                    <input className='direccion' type="text" placeholder="Escribe tu dirección aquí..."></input>
+                    <textarea className="notas" placeholder="Escribe tus notas aquí..." onChange={(e) => setNotas(e.target.value)}></textarea>
+                    <h2>Direccion:</h2>
+                    <input className='direccion' type="text" placeholder="Escribe tu dirección aquí..." onChange={(e) => setDireccion(e.target.value)}></input>
                 </div>
                 <div className="carrito-final">
                     <label className="total">Total: ${total.toFixed(2)}</label>
-                    <button className="comprar">Comprar</button>
+                    <button className="comprar" onClick={() => handleRealizarPedido()}>Realizar pedido</button>
                 </div>
+                </>
+                }
+                {showError && (
+                    <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-red-500 text-white p-3 rounded-md shadow-md">
+                        {error}
+                    </div>
+                )}
+
             </main>
         </div>
     );
