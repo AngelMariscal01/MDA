@@ -50,7 +50,9 @@ CREATE TABLE Pedidos (
     estado_id UUID REFERENCES EstadosPedidos(estado_id) ON DELETE SET NULL,
     direccion VARCHAR(255) NOT NULL,
     notas TEXT,
-    total DECIMAL(10, 2) NOT NULL
+    total DECIMAL(10, 2) NOT NULL,
+    fecha_entrega DATE,
+    hora_entrega TIME
 );
 
 -- Crear la tabla DetallesPedido

@@ -64,7 +64,7 @@ function Registrarse() {
             const values = {nombreCompleto, email, telefono, password};
             axios.post('http://localhost:8081/registrarUsuario', values)
             .then(()=>{
-                navigate('/');
+                navigate('/iniciarSesion');
             })
             .catch(err => {
                 console.log('Error en el registro: ', err);

@@ -31,7 +31,12 @@ function PedidosCliente() {
             })
             .then((response) => {
                 console.log('Pedidos obtenidos:', response.data);
-                setPedidos(response.data);
+                if(response.data.message == 'No hay pedidos') {
+                    console.log('No hay pedidos');
+                    setPedidos(Array.isArray(response.data.pedidos) ? response.data.pedidos : []);
+                }else{
+                    setPedidos(response.data);
+                }
             })
             .catch((error) => {
                 console.error('Error al obtener pedidos:', error);
@@ -117,9 +122,9 @@ function PedidosCliente() {
                         className="filter-select-pedidos"
                     >
                         <option value="">Todos los estados</option>
-                        {pedidos.map((pedido) => (
-                            <option key={pedido.pedido_id} value={pedido.estado_nombre}>
-                                {pedido.estado_nombre}
+                        {[...new Set(pedidos.map((pedido) => pedido.estado_nombre))].map((estado) => (
+                            <option key={estado} value={estado}>
+                                {estado}
                             </option>
                         ))}
                         {/* Añade más opciones si tienes más estados */}
@@ -133,7 +138,8 @@ function PedidosCliente() {
                             <tr>
                                 <th>ID de Pedido</th>
                                 <th>Estado</th>
-                                <th>Fecha</th>
+                                <th>Fecha de pedido</th>
+                                <th>Fecha de entrega estimada</th>
                                 <th>Opciones</th>
                             </tr>
                         </thead>
@@ -143,11 +149,12 @@ function PedidosCliente() {
                                     <td>{pedido.pedido_id}</td>
                                     <td>{pedido.estado_nombre}</td>
                                     <td>{formatFecha(pedido.fecha_pedido)}</td>
+                                    <td>{ (pedido.fecha_entrega) ? new Date(pedido.fecha_entrega).toLocaleString().substring(0, 10) + ", " + pedido.hora_entrega.toLocaleString() : "Se asignara en breve"}</td>
                                     <td>
                                         <button
                                             className="info-button"
                                             onClick={() =>
-                                                alert(`Detalles del pedido: ${pedido.pedido_id}`)
+                                                navigate(`/detallesPedido/${pedido.pedido_id}`, { state: { pedido_id: pedido.pedido_id, rol, usuarioId } })
                                             }
                                         >
                                             <FaInfoCircle />
@@ -156,7 +163,7 @@ function PedidosCliente() {
                                             className="delete-button"
                                             onClick={() => handleEliminarPedido(pedido.pedido_id)}
                                         >
-                                            <FaTrash />
+                                            
                                         </button>
                                     </td>
                                 </tr>

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation  } from 'react-router-dom';
+import { Link, useNavigate, useLocation  } from 'react-router-dom';
+import { FaBars } from 'react-icons/fa';
 import '../css/App.css';
 import axios from 'axios';
 
 function ActualizarUsuario() {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [nombre, setNombre] = useState('');
@@ -16,8 +18,13 @@ function ActualizarUsuario() {
     const [showSuccess, setShowSuccess] = useState(false);
     const location = useLocation();
     const  {usuarioId, rol}  = location.state || {};
-    
-
+    const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+    console.log(usuarioId, rol);    
+    const cerrarSesion = () => {
+        localStorage.removeItem('token');
+        navigate('/');
+        window.location.reload();
+    };
 
     useEffect(() => {
         // Obtener datos del usuario
@@ -104,6 +111,35 @@ function ActualizarUsuario() {
     };
 
     return (
+        <>
+        {!(rol === 'cliente') ? (
+            <header className="header">
+            <div className="menu-icon" onClick={toggleMenu}>
+                <FaBars size={24} />
+            </div>
+            <nav className={`dropdown-menu ${isMenuOpen ? 'open' : ''}`}>
+                <Link to="/gestionProductos" className="menu-item" onClick={toggleMenu}>Productos</Link>
+                <Link to="/gestionUsuarios" className="menu-item" onClick={toggleMenu}>Usuarios</Link>
+                <Link to="/gestionPedidos" className="menu-item" onClick={toggleMenu}>Pedidos</Link>
+                <Link to="/estadisticas" className="menu-item" onClick={toggleMenu}>Estadísticas</Link>
+                <button className="menu-item" onClick={cerrarSesion}>Cerrar sesión</button>
+            </nav>
+            </header>
+        ) : (
+            <header className="header">
+            <div className="menu-icon" onClick={toggleMenu}>
+                <FaBars size={24} />
+            </div>
+            <nav className={`dropdown-menu ${isMenuOpen ? 'open' : ''}`}>
+                    <Link to="/productos" state={{ usuarioId, rol }} className="menu-item" onClick={toggleMenu}>Productos</Link>
+                    <Link to="/pedidos" state={{ usuarioId, rol }} className="menu-item" onClick={toggleMenu}>Pedidos</Link>
+                    <Link to="/carrito" state={{ usuarioId, rol }} className="menu-item" onClick={toggleMenu}>Carrito</Link>
+                    <Link to={`/perfil/${usuarioId}`} state={{ usuarioId, rol }} className="menu-item" onClick={toggleMenu}>Perfil</Link>
+                    <Link to="/contacto" className="menu-item" onClick={toggleMenu}>Contacto</Link>
+                    <button className="menu-item" onClick={() => { localStorage.removeItem('token'); navigate('/'); }}>Cerrar sesión</button>
+                </nav>
+            </header>   
+        )}
         <div className="relative flex w-full min-h-screen flex-col bg-[#faf8fc] overflow-x-hidden" style={{ fontFamily: 'Epilogue, "Noto Sans", sans-serif', background: '#cea5db' }}>
             <h2 className="text-[#140e1b] text-2xl font-bold text-center pt-5 pb-3 sm:text-3xl md:text-4xl lg:text-5xl">
                 ¡Actualiza tus datos!
@@ -136,6 +172,7 @@ function ActualizarUsuario() {
                 </div>
             )}
         </div>
+        </>
     );
 }
 

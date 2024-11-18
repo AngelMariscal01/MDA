@@ -75,7 +75,7 @@ function IniciarSesion() {
                 navigate('/inicioAdministrador', { state: {usuarioId:parseJwt(token).usuario_id, rol:parseJwt(token).rol } })
                 window.location.reload();
               }else if (parseJwt(token).rol === 'cliente' && parseJwt(token).estado === 'activo'){
-                navigate('/inicioCliente', { state: {usuarioId:parseJwt(token).usuario_id, rol:parseJwt(token).rol } })
+                navigate('/productos', { state: {usuarioId:parseJwt(token).usuario_id, rol:parseJwt(token).rol } })
                 window.location.reload();
               }
               else if (parseJwt(token).estado === 'inactivo'){

@@ -44,6 +44,14 @@ function PedidosAdmin() {
         if (window.confirm('¿Estás seguro de eliminar este pedido?')) {
             console.log(`Pedido eliminado: ${numeroPedido}`);
             // Aquí puedes llamar a una API para eliminar el pedido en la base de datos
+            axios.post('http://localhost:8081/eliminarPedido', { pedido_id: numeroPedido })
+                .then(() => {
+                    alert('Pedido eliminado exitosamente.');
+                    window.location.reload();
+                })
+                .catch((err) => {
+                    console.error('Error al eliminar el pedido:', err);
+            })
         }
     };
     const cerrarSesion = () => {
@@ -111,12 +119,12 @@ function PedidosAdmin() {
                         className="filter-select-pedidos"
                     >
                         <option value="">Todos los estados</option>
-                        {pedidos.map((pedido) => (
-                            <option key={pedido.pedido_id} value={pedido.estado_nombre}>
-                                {pedido.estado_nombre}
+                        {[...new Set(pedidos.map((pedido) => pedido.estado_nombre))].map((estado) => (
+                            <option key={estado} value={estado}>
+                                {estado}
                             </option>
                         ))}
-                        {/* Añade más opciones si tienes más estados */}
+
                     </select>
                 </section>
 
@@ -141,7 +149,7 @@ function PedidosAdmin() {
                                         <button
                                             className="info-button"
                                             onClick={() =>
-                                                alert(`Detalles del pedido: ${pedido.pedido_id}`)
+                                                navigate(`/detalles-pedido/${pedido.pedido_id}`, { state: { pedido_id: pedido.pedido_id } })
                                             }
                                         >
                                             <FaInfoCircle />

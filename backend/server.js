@@ -672,6 +672,7 @@ app.get('/obtenerPedidos', async (req, res) => {
             SELECT p.pedido_id, e.estado_nombre, p.fecha_pedido
             FROM pedidos p
             JOIN estadospedidos e ON p.estado_id = e.estado_id
+            ORDER BY p.fecha_pedido DESC
         `);
         res.json(result.rows);
     } catch (err) {
@@ -684,10 +685,11 @@ app.get('/obtenerPedidosCliente', async (req, res) => {
     try {
         const {idUsuario} = req.query;
         const result = await db.query(`
-            SELECT p.pedido_id, e.estado_nombre, p.fecha_pedido
+            SELECT p.pedido_id, e.estado_nombre, p.fecha_pedido, p.fecha_entrega, p.hora_entrega
             FROM pedidos p
             JOIN estadospedidos e ON p.estado_id = e.estado_id
             WHERE p.usuario_id = $1
+            ORDER BY p.fecha_pedido DESC
         `, [idUsuario]);
         if (result.rows.length === 0) {
             return res.json({ message: 'No hay pedidos' });
@@ -698,6 +700,139 @@ app.get('/obtenerPedidosCliente', async (req, res) => {
         res.status(500).json({ error: 'Error al obtener pedidos' });
     }
 });
+app.get('/obtenerDetallesPedido', async (req, res) => {
+    try {
+        const { pedido_id } = req.query;
+        const result = await db.query(`
+            SELECT  dp.pedido_id as pedido_id,
+                    p.fecha_pedido as fecha_pedido,
+                    p.fecha_entrega as fecha_entrega,
+                    p.hora_entrega as hora_entrega,
+                    u.nombre as nombre_usuario,
+                    u.telefono as telefono,
+                    p.estado_id as estado_id,
+                    p.direccion as direccion_entrega,
+                    p.notas as notas_entrega,
+                    dp.producto_id as producto_id,
+                    pr.nombre as nombre_producto,
+                    pr.cantidad_piezas as pz_producto,
+                    pr.imagen as imagen,
+                    dp.cantidad as cantidad_pedido,
+                    dp.subtotal as subtotal,
+                    p.total as total
+            FROM DetallesPedido dp
+            LEFT JOIN Pedidos p
+                ON dp.pedido_id = p.pedido_id
+            LEFT JOIN Productos pr
+                ON dp.producto_id = pr.producto_id
+            LEFT JOIN usuarios u
+                ON u.usuario_id = p.usuario_id
+            WHERE dp.pedido_id = $1
+        `, [pedido_id]);
+
+        // Estructurar el resultado
+        const pedidos = {};
+        result.rows.forEach(row => {
+            if (!pedidos[row.pedido_id]) {
+                pedidos[row.pedido_id] = {
+                    pedido_id: row.pedido_id,
+                    fecha_pedido: row.fecha_pedido,
+                    fecha_entrega_estimada: row.fecha_entrega,
+                    hora_entrega_estimada: row.hora_entrega,
+                    nombre_usuario: row.nombre_usuario,
+                    telefono: row.telefono,
+                    estado_id: row.estado_id,
+                    direccion_entrega: row.direccion_entrega,
+                    notas_entrega: row.notas_entrega,
+                    total: row.total,
+                    productos: []
+                };
+            }
+            pedidos[row.pedido_id].productos.push({
+                producto_id: row.producto_id,
+                nombre_producto: row.nombre_producto,
+                pz_producto: row.pz_producto,
+                imagen: row.imagen,
+                cantidad_pedido: row.cantidad_pedido,
+                subtotal: row.subtotal
+            });
+        });
+
+        // Convertir el objeto en un array y enviar la respuesta
+        res.json(Object.values(pedidos));
+    } catch (err) { 
+        console.error('Error al obtener detalles de pedido:', err);
+        res.status(500).json({ error: 'Error al obtener detalles de pedido' });
+    }
+});
+app.get('/obtenerEstados', async (req, res) => {
+    try {
+        const result = await db.query('SELECT * FROM estadospedidos');
+        res.json(result.rows);
+    } catch (err) {
+        console.error('Error al obtener estados:', err);
+        res.status(500).json({ error: 'Error al obtener estados' });
+    }
+});
+app.post('/actualizarEstadoPedido', (req, res) => {
+    const { pedido_id, estado_id } = req.body;
+
+    if (!pedido_id || !estado_id) {
+        return res.status(400).json({ message: 'Faltan datos: pedido_id o estado_id.' });
+    }
+
+    // Simulación de una actualización en la base de datos
+    const query = 'UPDATE pedidos SET estado_id = $1 WHERE pedido_id = $2';
+    db.query(query, [estado_id, pedido_id], (err, result) => {
+        if (err) {
+            console.error('Error al actualizar el estado del pedido:', err);
+            return res.status(500).json({ message: 'Error interno del servidor.' });
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Pedido no encontrado.' });
+        }
+
+        res.status(200).json({ message: 'Estado del pedido actualizado con éxito.' });
+    });
+});
+
+
+// Endpoint para actualizar la fecha y hora estimada de entrega
+app.post('/actualizarFechaHoraEntrega', (req, res) => {
+    const { pedido_id, fecha_entrega, hora_entrega } = req.body;
+
+    const query = `
+        UPDATE pedidos 
+        SET fecha_entrega = $1, hora_entrega = $2 
+        WHERE pedido_id = $3;
+    `;
+
+    db.query(query, [fecha_entrega, hora_entrega, pedido_id], (err, result) => {
+        if (err) {
+            console.error('Error al actualizar la fecha y hora de entrega:', err);
+            res.status(500).send('Error al actualizar la fecha y hora de entrega.');
+            return;
+        }
+        res.send('Fecha y hora de entrega actualizadas correctamente.');
+    });
+});
+
+//Endpoint para eliminar un pedido
+app.post('/eliminarPedido', (req, res) => {
+    const { pedido_id } = req.body;
+    console.log(pedido_id);
+    const query = 'DELETE FROM pedidos WHERE pedido_id = $1';
+    db.query(query, [pedido_id], (err, result) => {
+        if (err) {
+            console.error('Error al eliminar el pedido:', err);
+            res.status(500).send('Error al eliminar el pedido.');
+            return;
+        }
+        res.send('Pedido eliminado correctamente.');
+    });
+})
+
 
 
 function newId() {

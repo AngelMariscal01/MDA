@@ -50,7 +50,15 @@ function Carrito() {
     const [cantidades, setCantidades] = useState({});
     const location = useLocation();
     const [notas, setNotas] = useState('');
-    const [direccion, setDireccion] = useState('');
+    const [direccion, setDireccion] = useState({
+        calle: '',
+        numeroExterior: '',
+        numeroInterior: '',
+        colonia: '',
+        ciudad: '',
+        entreCalle1: '',
+        entreCalle2: ''
+    });
     const { usuarioId, rol } = location.state || {};
     const [error, setError] = useState('');
     const [showError, setShowError] = useState(false);
@@ -65,7 +73,6 @@ function Carrito() {
                 if (response.data && response.data.carrito) {
                     const carrito = response.data.carrito;
                     setProductos(carrito);
-                    // Inicializar las cantidades para cada producto
                     const cantidadesIniciales = carrito.reduce((acc, product) => {
                         acc[product.producto_id] = product.cantidad;
                         return acc;
@@ -94,15 +101,50 @@ function Carrito() {
         }));
     };
 
-    const handleDeleteProducto = (productoId) => {
-        setProductos((prevProductos) =>
-            prevProductos.filter((producto) => producto.producto_id !== productoId)
-        );
-        const { [productoId]: _, ...rest } = cantidades;
-        setCantidades(rest);
+    const handleInputChange = (field, value) => {
+        setDireccion((prevDireccion) => ({
+            ...prevDireccion,
+            [field]: value
+        }));
     };
 
-    // Calcular el total basado en las cantidades actuales
+    const mostrarError = (mensaje) => {
+        setError(mensaje);
+        setShowError(true);
+        setTimeout(() => {
+            setShowError(false);
+        }, 3000);
+    };
+
+    const handleRealizarPedido = () => {
+        if (!notas || Object.values(direccion).some((campo) => !campo)) {
+            mostrarError('Por favor, complete todos los campos.');
+            return;
+        }
+
+        // Construir la dirección concatenada
+        const direccionCompleta = `${direccion.calle} ${direccion.numeroExterior}${direccion.numeroInterior ? ' Int. ' + direccion.numeroInterior : ''}, ${direccion.colonia}, ${direccion.ciudad}. Entre ${direccion.entreCalle1} y ${direccion.entreCalle2}`;
+
+        axios
+            .post('http://localhost:8081/realizarPedido', {
+                usuario_id: usuarioId,
+                direccion: direccionCompleta,
+                notas,
+                productos: productos.map((product) => ({
+                    producto_id: product.producto_id,
+                    cantidad: cantidades[product.producto_id],
+                    precio_unitario: product.precio
+                }))
+            })
+            .then(response => {
+                console.log('Pedido realizado con éxito:', response.data);
+                navigate('/pedidos', { state: { usuarioId, rol } });
+            })
+            .catch(error => {
+                console.error('Error al realizar el pedido:', error);
+            });
+    };
+
     const total = productos.reduce((sum, product) => {
         const cantidad = cantidades[product.producto_id] || 1;
         return sum + parseFloat(product.precio) * cantidad;
@@ -110,96 +152,74 @@ function Carrito() {
 
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
-    const cerrarSesion = () => {
-        localStorage.removeItem('token');
-        navigate('/');
-        window.location.reload();
-    };
-    const mostrarError = (mensaje) => {
-        setError(mensaje);
-        setShowError(true);
-        setTimeout(() => {
-        setShowError(false);
-        }, 3000); // Oculta el mensaje después de 3 segundos
-    };
-
-    const handleRealizarPedido = () => {
-        if (!direccion || !notas) {
-            mostrarError('Por favor, complete todos los campos.');
-            return;
-        }
-        axios.post('http://localhost:8081/realizarPedido', {
-            usuario_id: usuarioId,
-            direccion,
-            notas,
-            productos: productos.map((product) => ({
-                producto_id: product.producto_id,
-                cantidad: cantidades[product.producto_id],
-                precio_unitario: product.precio
-            }))
-        })
-        .then(response => {
-            console.log('Pedido realizado con éxito:', response.data);
-            window.location.reload();
-        })
-        .catch(error => {
-            console.error('Error al realizar el pedido:', error);
-        });
-    };
-
     return (
         <div className="inicio-cliente">
             <header className="header">
                 <div className="menu-icon" onClick={toggleMenu}>
                     <FaBars size={24} />
                 </div>
-
                 <nav className={`dropdown-menu ${isMenuOpen ? 'open' : ''}`}>
                     <Link to="/productos" state={{ usuarioId, rol }} className="menu-item" onClick={toggleMenu}>Productos</Link>
                     <Link to="/pedidos" state={{ usuarioId, rol }} className="menu-item" onClick={toggleMenu}>Pedidos</Link>
                     <Link to="/carrito" state={{ usuarioId, rol }} className="menu-item" onClick={toggleMenu}>Carrito</Link>
                     <Link to={`/perfil/${usuarioId}`} state={{ usuarioId, rol }} className="menu-item" onClick={toggleMenu}>Perfil</Link>
                     <Link to="/contacto" className="menu-item" onClick={toggleMenu}>Contacto</Link>
-                    <button className="menu-item" onClick={cerrarSesion}>Cerrar sesión</button>
+                    <button className="menu-item" onClick={() => { localStorage.removeItem('token'); navigate('/'); }}>Cerrar sesión</button>
                 </nav>
             </header>
             <main className="main-content-productos-admin">
                 <h1>Carrito de compras:</h1>
                 <div className="product-grid">
-                    {productos.length === 0 ? <p>No hay productos en el carrito.</p>
-                    :productos.map((product) => (
-                        <ProductCard
-                            key={product.producto_id}
-                            product={product}
-                            cantidad={cantidades[product.producto_id]}
-                            incrementarCantidad={incrementarCantidad}
-                            disminuirCantidad={disminuirCantidad}
-                            onDelete={handleDeleteProducto}
-                        />
-                    ))
-                    }
-
+                    {productos.length === 0 ? <p>No hay productos en el carrito.</p> :
+                        productos.map((product) => (
+                            <ProductCard
+                                key={product.producto_id}
+                                product={product}
+                                cantidad={cantidades[product.producto_id]}
+                                incrementarCantidad={incrementarCantidad}
+                                disminuirCantidad={disminuirCantidad}
+                            />
+                        ))}
                 </div>
-                {productos.length === 0 ? <p>Ingrese al apartado de productos para comprar.</p> : 
-                <>
-                <div className="carrito-extra">
-                    <h2>Notas:</h2>
-                    <textarea className="notas" placeholder="Escribe tus notas aquí..." onChange={(e) => setNotas(e.target.value)}></textarea>
-                    <h2>Direccion:</h2>
-                    <input className='direccion' type="text" placeholder="Escribe tu dirección aquí..." onChange={(e) => setDireccion(e.target.value)}></input>
-                </div>
-                <div className="carrito-final">
-                    <label className="total">Total: ${total.toFixed(2)}</label>
-                    <button className="comprar" onClick={() => handleRealizarPedido()}>Realizar pedido</button>
-                </div>
-                </>
-                }
-                {showError && (
-                    <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-red-500 text-white p-3 rounded-md shadow-md">
-                        {error}
-                    </div>
+                {productos.length > 0 && (
+                    <>
+                        <div className="carrito-extra">
+                            <h2>Notas:</h2>
+                            <textarea className="notas" placeholder="Escribe tus notas aquí..." onChange={(e) => setNotas(e.target.value)}></textarea>
+                            <h2>Dirección:</h2>
+                            <div className='direccion-inputs'>
+                                <input type="text" className="input" placeholder="Calle" onChange={(e) => handleInputChange('calle', e.target.value)} />
+                                <input type="text" className="input" placeholder="Número exterior" onChange={(e) => handleInputChange('numeroExterior', e.target.value)} />
+                                <input type="text" className="input" placeholder="Número interior" onChange={(e) => handleInputChange('numeroInterior', e.target.value)} />
+                                <input type="text" className="input" placeholder="Colonia" onChange={(e) => handleInputChange('colonia', e.target.value)} />
+                                <input type="text" className="input" placeholder="Ciudad" onChange={(e) => handleInputChange('ciudad', e.target.value)} />
+                                <input type="text" className="input" placeholder="Entre calle 1" onChange={(e) => handleInputChange('entreCalle1', e.target.value)} />
+                                <input type="text" className="input" placeholder="Entre calle 2" onChange={(e) => handleInputChange('entreCalle2', e.target.value)} />
+                            </div>
+                            <div className='alerta'>
+                                <label>Instrucciones: 
+                                    <ul>
+                                        <li>1. Al realizar el pedido tendrás que esperar a que se te asigne una fecha de entrega estimada.</li>
+                                        <br />
+                                        <li>2. Al tener tu fecha de entrega estimada tendras que hacer una transferencia de ${total.toFixed(2) * 0.5} a la <strong>cuenta: 1234-5678-9012-3456.</strong>
+                                            Ingresando los primeros 5 digitos de tu <strong>ID de pedido</strong> en el concepto para poder continuar con el proceso.</li>
+                                        <br />
+                                        <li>3. Al recibir la transferencia tu pedido estará listo para ser preparado.</li>
+                                        <br />
+                                        <li>TU <strong>ID DE PEDIDO</strong> LO PODRAS ENCONTRAR EN TUS PEDIDOS.</li>
+                                        <br />
+                                        <li>LA <strong>CUENTA</strong> DONDE REALIZARAS LA TRANSFERENCIA LA PODRAS ENCONTRAR EN LOS DETALLES DE DICHO PEDIDO.</li>
+                                    </ul>
+                                </label>
+                            </div>
+                        </div>
+                        <div className="carrito-final">
+                            <label className="total">Total: ${total.toFixed(2)}</label>
+                            <button className="comprar" onClick={handleRealizarPedido}>Realizar pedido</button>
+                        </div>
+                    </>
                 )}
-
+                {showError && <div className="error">{error}</div>}
             </main>
         </div>
     );
