@@ -6,7 +6,7 @@ import axios from 'axios';
 import { Bar, Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 import 'chartjs-plugin-datalabels'; // Para etiquetas en las barras
-import WordCloud from 'react-wordcloud';
+import WordCloud from 'react-wordcloud-fork';
 import DataTable from 'react-data-table-component';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
@@ -236,57 +236,62 @@ function Estadisticas() {
             </header>
             <main className="main-content">
             <h1>Estadísticas:</h1>
-            <div className="chart-container">
-                <div className="chart">
+            <div className="chart-container" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around' }}>
+            <div className="chart" style={{ flex: '1 1 300px', maxWidth: '400px', margin: '10px' }}>
                 <Pie
                     data={pieChartData}
+                    redraw={true}
                     options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
                         plugins: {
                             title: {
                                 display: true,
-                                text: 'Pedidos por estado'
-                            }
-                        }
+                                text: 'Pedidos por estado',
+                            },
+                        },
                     }}
                 />
-                </div>
-                <div className="chart">
+            </div>
+            <div className="chart" style={{ flex: '1 1 300px', maxWidth: '400px', margin: '10px' }}>
                 <Bar
                     data={barChartData}
+                    redraw={true}
                     options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
                         plugins: {
                             title: {
                                 display: true,
-                                text: 'Productos por cantidad'
-                            }
-                        }
+                                text: 'Productos por cantidad',
+                            },
+                        },
                     }}
-                />  
-                </div>
-                <div className="chart">
-                        {/* Nube de palabras de categorías */}
-                    <WordCloud
-                        words={wordCloudData}
-                        options={{
+                />
+            </div>
+            <div className="chart" style={{ flex: '1 1 300px', maxWidth: '400px', margin: '10px' }}>
+                <WordCloud
+                    words={wordCloudData}
+                    options={{
                         rotations: 2,
                         fontSizes: [20, 100],
                         fontFamily: 'sans-serif',
-                        disableSelection: true
+                        disableSelection: true,
                     }}
-                    />
-                </div>
+                />
             </div>
-            <div className="table-container">
-                    {/* Agregar DataTable para mostrar los pedidos */}
-                    <DataTable
-                        title="Pedidos"
-                        columns={columns}
-                        data={pedidosTabla}
-                        responsive
-                        customStyles={customStyles}
-                        pagination
-                    />
-                </div>
+        </div>
+        <div className="table-container" style={{ maxWidth: '100%', overflowX: 'auto', margin: '10px' }}>
+            <DataTable
+                title="Pedidos"
+                columns={columns}
+                data={pedidosTabla}
+                responsive
+                customStyles={customStyles}
+                pagination
+            />
+        </div>
+
             <button onClick={exportToPDF} className="btn-pdf">Exportar a PDF</button>
 
             </main>
