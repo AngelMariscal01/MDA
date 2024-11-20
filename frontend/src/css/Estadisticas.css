@@ -1,0 +1,84 @@
+.main-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Alinea los elementos al centro horizontalmente */
+    text-align: center; /* Alinea el texto del título al centro */
+    width: 100%;
+    justify-content: flex-start; /* Asegura que los elementos se alineen desde la parte superior */
+    padding-top: 20px; /* Un poco de espacio desde la parte superior para que no esté pegado al borde */
+    height: 100vh; /* Asegura que el contenido ocupe todo el alto de la pantalla */
+}
+
+.main-content h1 { 
+    font-size: 2rem;
+    color: #4d3dac;
+    margin: 10px 0; /* Margin ajustado para que haya un poco de espacio arriba y abajo */
+    align-self: center; /* Alinea el título al centro horizontal */
+}
+/* Contenedor principal de los gráficos */
+.chart-container {
+    display: flex;
+    justify-content: space-between; /* Ajusta el espacio entre gráficos */
+    gap: 20px; /* Agrega un espacio uniforme entre los gráficos */
+    margin-top: 20px; /* Espacio en la parte superior para separar los gráficos del resto */
+    flex-wrap: wrap; /* Permite que los gráficos se ajusten al ancho disponible */
+}
+
+/* Estilos para cada gráfico */
+.chart {
+    flex: 1; /* Hace que los gráficos ocupen el mismo espacio */
+    background-color: #ffffff; /* Fondo blanco para que los gráficos se resalten */
+    border-radius: 10px; /* Bordes redondeados */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra sutil para darle un efecto de profundidad */
+    padding: 20px; /* Relleno interno para separar el gráfico de los bordes */
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* Transición para efectos */
+}
+
+/* Efecto cuando el gráfico está en hover */
+.chart:hover {
+    transform: scale(1.05); /* Aumenta ligeramente el tamaño del gráfico */
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* Sombra más fuerte en hover */
+}
+
+/* Media query para pantallas pequeñas */
+@media (max-width: 768px) {
+    .chart-container {
+        flex-direction: column; /* En pantallas pequeñas, los gráficos se apilan */
+        gap: 10px; /* Espacio más pequeño entre los gráficos */
+    }
+
+    .chart {
+        width: 100%; /* En pantallas pequeñas, los gráficos ocupan todo el ancho */
+        padding: 15px; /* Menos relleno en pantallas pequeñas */
+    }
+}
+
+/* Ajustes para mejorar la visualización en pantallas grandes */
+@media (min-width: 1024px) {
+    .chart-container {
+        gap: 30px; /* Espacio más grande entre gráficos en pantallas grandes */
+    }
+
+    .chart {
+        width: 45%; /* En pantallas grandes, los gráficos ocupan el 45% del ancho */
+    }
+}
+
+.table-container {
+    margin-top: 20px; /* Espacio en la parte superior para sepmax-width: 25%; /* Limita el ancho de la tabla */
+}
+
+.btn-pdf {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    background-color: #4d3dac;
+    color: #fff;
+    cursor: pointer;
+    width: 25%;
+    margin-top: 5px;
+    font-size: 0.9rem;
+}
+.btn-pdf:hover {
+    background-color: #321ab9;
+}

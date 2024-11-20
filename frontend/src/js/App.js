@@ -18,6 +18,7 @@ import PedidosAdmin from './Pedidos';
 import DetallePedido from "./PedidosDetalleAdmin";
 import PedidosCliente from "./PedidosCliente";
 import DetallesPedidoCliente from "./PedidosDetalleCliente"; 
+import Estadisticas from "./Estadisticas";
 import Inicio from "./Inicio";
 // Función para decodificar el token
 function parseJwt(token) {
@@ -65,6 +66,7 @@ function App() {
         <Route path="/gestionPedidos" element={tokenValid && rol === 'admin' ? <PedidosAdmin /> : <IniciarSesion />} />
         <Route path="/detalles-pedido/:pedidoId" element={tokenValid && rol === 'admin' ? <DetallePedido /> : <IniciarSesion />} />
         <Route path="/editarProducto/:productoId" element={tokenValid && rol === 'admin' ? <ActualizarProducto /> : <IniciarSesion />} />
+        <Route path="/estadisticas" element={tokenValid && rol === 'admin' ? <Estadisticas /> : <IniciarSesion />} />
         <Route path="/perfil/:usuarioId" element={tokenValid ? <ActualizarUsuario /> : <IniciarSesion />} />
         <Route path="/restablecerContrasena" element={<RestablecerContrasena />} />
         <Route path="/contacto" element={<Contacto />} />

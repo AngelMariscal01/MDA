@@ -833,6 +833,77 @@ app.post('/eliminarPedido', (req, res) => {
     });
 })
 
+app.get('/estadisticasEstados', async (req, res) => {
+    try {
+        // Consulta a la base de datos para obtener los datos necesarios
+        const result  = await db.query(`
+                SELECT p.pedido_id, ep.estado_nombre
+                FROM pedidos p
+                JOIN estadospedidos ep
+                ON p.estado_id = ep.estado_id
+            `);
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error al obtener datos de estadísticas:', error);
+        res.status(500).json({ error: 'Error al obtener datos de estadísticas' });
+    }
+});
+
+app.get('/estadisticasProductos', async (req, res) => {
+    try {
+        // Consulta a la base de datos para obtener los datos necesarios
+        const result  = await db.query(`
+                SELECT p.nombre, dp.cantidad FROM pedidos pe
+                JOIN detallespedido dp
+                ON pe.pedido_id = dp.pedido_id
+                JOIN productos p
+                ON dp.producto_id = p.producto_id
+                WHERE pe.estado_id != '35d48694-9551-4f0f-aa08-e152356a96bb'
+            `);
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error al obtener datos de estadísticas:', error);
+        res.status(500).json({ error: 'Error al obtener datos de estadísticas' });
+    }
+});
+
+app.get('/estadisticasCategorias', async (req, res) => {
+    try {
+        // Consulta a la base de datos para obtener los datos necesarios
+        const result  = await db.query(`
+            SELECT p.nombre, dp.cantidad, c.nombre_categoria FROM pedidos pe
+            JOIN detallespedido dp
+            ON pe.pedido_id = dp.pedido_id
+            JOIN productos p
+            ON dp.producto_id = p.producto_id
+            JOIN productoscategorias pc
+            ON p.producto_id = pc.producto_id
+            JOIN categorias c
+            ON c.categoria_id = pc.categoria_id
+            WHERE pe.estado_id != '35d48694-9551-4f0f-aa08-e152356a96bb'
+            `);
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error al obtener datos de estadísticas:', error);
+        res.status(500).json({ error: 'Error al obtener datos de estadísticas' });
+    }
+})
+
+app.get('/estadisticasPedidos', async (req, res) => {
+    try {
+        // Consulta a la base de datos para obtener los datos necesarios
+        const result  = await db.query(`
+            SELECT pe.pedido_id, u.nombre, pe.fecha_pedido, pe.fecha_entrega, pe.direccion, pe.total FROM pedidos pe
+            JOIN usuarios u
+            ON pe.usuario_id = u.usuario_id
+            WHERE pe.estado_id = 'f01cab50-7ebe-45ed-8f4a-0618b83c9c8f'
+            `);
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error al obtener datos de estadísticas:', error);
+        res.status(500).json({ error: 'Error al obtener datos de estadísticas' });
+    }
+})
 
 
 function newId() {
