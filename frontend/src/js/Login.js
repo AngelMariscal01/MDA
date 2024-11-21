@@ -111,7 +111,7 @@ function IniciarSesion() {
         <label htmlFor='email' className="flex flex-col">
           <input
             placeholder="Ingresa tu correo electrónico"
-            className="form-input rounded-xl bg-[#ede7f3] text-[#140e1b] placeholder:text-[#734e97] h-12 sm:h-14 px-4 py-2 sm:py-3 text-base leading-tight"
+            className="form-input rounded-xl bg-[#F2D5C4] text-[#D97789] placeholder:text-[#F2A7A7] h-12 sm:h-14 px-4 py-2 sm:py-3 text-base leading-tight"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -121,7 +121,7 @@ function IniciarSesion() {
           <input
             type="password"
             placeholder="Ingresa tu contraseña"
-            className="form-input rounded-xl bg-[#ede7f3] text-[#140e1b] placeholder:text-[#734e97] h-12 sm:h-14 px-4 py-2 sm:py-3 text-base leading-tight"
+            className="form-input rounded-xl bg-[#F2D5C4] text-[#D97789] placeholder:text-[#F2A7A7] h-12 sm:h-14 px-4 py-2 sm:py-3 text-base leading-tight"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -133,7 +133,7 @@ function IniciarSesion() {
         <div className="flex flex-col gap-3 max-w-lg w-full px-4 py-3 sm:px-6 md:px-8">
           <button
             type="button"
-            className="rounded-full bg-[#8019e6] text-[#faf8fc] h-12 sm:h-14 w-full font-bold text-base sm:text-lg tracking-wide hover:bg-[#5f0fb3] transition duration-200"
+            className="rounded-full bg-[#D97789] text-[#faf8fc] h-12 sm:h-14 w-full font-bold text-base sm:text-lg tracking-wide hover:bg-[#D9BB84] transition duration-200"
             onClick={handleIniciarSesion}
           >
             Iniciar Sesión
@@ -150,10 +150,10 @@ function IniciarSesion() {
       </div>
 
       {/* Olvidaste tu Contraseña */}
-      <a href="/recuperarContrasena" className="text-[#734e97] text-sm text-center underline pb-3 sm:text-base">
+      <a href="/recuperarContrasena" className="text-[#D97789] text-sm text-center underline pb-3 sm:text-base">
         ¿Olvidaste tu Contraseña?
       </a>
-      <a href="/contacto" className="text-[#734e97] text-sm text-center underline pb-3 sm:text-base">@Contacto</a>
+      <a href="/contacto" className="text-[#D97789] text-sm text-center underline pb-3 sm:text-base">@Contacto</a>
 
       {/* Mensaje de Error */}
       <ToastContainer position="bottom-right" autoClose={3000} />
