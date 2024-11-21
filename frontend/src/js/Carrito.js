@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FaBars } from 'react-icons/fa';
 import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Componente de tarjeta de producto
 function ProductCard({ product, cantidad, incrementarCantidad, disminuirCantidad, onDelete }) {
@@ -60,8 +62,6 @@ function Carrito() {
         entreCalle2: ''
     });
     const { usuarioId, rol } = location.state || {};
-    const [error, setError] = useState('');
-    const [showError, setShowError] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -108,17 +108,9 @@ function Carrito() {
         }));
     };
 
-    const mostrarError = (mensaje) => {
-        setError(mensaje);
-        setShowError(true);
-        setTimeout(() => {
-            setShowError(false);
-        }, 3000);
-    };
-
     const handleRealizarPedido = () => {
         if (!notas || Object.values(direccion).some((campo) => !campo)) {
-            mostrarError('Por favor, complete todos los campos.');
+            toast.error('Por favor, complete todos los campos.');
             return;
         }
 
@@ -138,9 +130,15 @@ function Carrito() {
             })
             .then(response => {
                 console.log('Pedido realizado con éxito:', response.data);
-                navigate('/pedidos', { state: { usuarioId, rol } });
+                toast.success('Pedido realizado con éxito.');
+                setTimeout(() => {
+                    navigate('/pedidos', { state: { usuarioId, rol } });
+                    window.location.reload();
+                }, 1000);
+
             })
             .catch(error => {
+                toast.error('Error al realizar el pedido.');
                 console.error('Error al realizar el pedido:', error);
             });
     };
@@ -219,7 +217,7 @@ function Carrito() {
                         </div>
                     </>
                 )}
-                {showError && <div className="error">{error}</div>}
+                <ToastContainer position="bottom-right" autoClose={3000} />
             </main>
         </div>
     );

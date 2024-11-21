@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import '../css/RegistrarProducto.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function RegistrarProducto() {
     // Estado para almacenar valores de los campos
@@ -77,7 +79,10 @@ function RegistrarProducto() {
         })
             .then((response) => {
                 console.log('Producto agregado:', response.data);
-                navigate('/gestionProductos');
+                toast.success('Producto agregado correctamente');
+                setTimeout(() => {
+                    navigate('/gestionProductos');
+                }, 1000);
             })
             .catch((err) => {
                 console.log('Error al agregar el producto:', err);
@@ -200,7 +205,9 @@ function RegistrarProducto() {
                 <br />
             
                 <button type="submit">Agregar Producto</button>
+                
             </form>
+            <ToastContainer position="bottom-right" autoClose={3000} />
         </div>
     );
 }

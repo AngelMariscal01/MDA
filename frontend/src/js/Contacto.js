@@ -1,6 +1,6 @@
 import React from 'react';
 import '../css/Contacto.css';
-import qrImage from '../minidosnas.jpg'; // Asegúrate de tener una imagen de código QR en esta ruta
+import qrImage from '../assets/minidosnas.jpg'; // Asegúrate de tener una imagen de código QR en esta ruta
 
 function Contacto() {
     return (

@@ -297,7 +297,7 @@ app.post('/recuperarContrasena', async (req, res) => {
 
         // Crear un token para el restablecimiento de contraseña
         const user = result.rows[0];
-        console.log(user)
+    
         const resetToken = jwt.sign({ usuarioId: user.usuario_id }, "Stack", { expiresIn: '15m' });
 
         // URL de restablecimiento de contraseña
@@ -305,7 +305,7 @@ app.post('/recuperarContrasena', async (req, res) => {
 
         // Enviar correo electrónico de restablecimiento de contraseña
         await resend.emails.send({
-            from: 'onboarding@resend.dev',
+            from: 'isc_amariscal2023@accitesz.com',
             to: email,
             subject: 'Recuperación de Contraseña',
             html: `
@@ -335,13 +335,11 @@ app.post('/recuperarContrasena', async (req, res) => {
 // Endpoint para actualizar la contraseña una vez que el usuario hace clic en el enlace
 app.post('/restablecerContrasena', async (req, res) => {
     const { token, password } = req.body;
-    console.log(password)
 
     try {
         // Verificar el token
         const decoded = jwt.verify(token, "Stack");
         const usuarioId = decoded.usuarioId;
-        console.log(usuarioId)
 
         // Encriptar la nueva contraseña
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -821,7 +819,6 @@ app.post('/actualizarFechaHoraEntrega', (req, res) => {
 //Endpoint para eliminar un pedido
 app.post('/eliminarPedido', (req, res) => {
     const { pedido_id } = req.body;
-    console.log(pedido_id);
     const query = 'DELETE FROM pedidos WHERE pedido_id = $1';
     db.query(query, [pedido_id], (err, result) => {
         if (err) {

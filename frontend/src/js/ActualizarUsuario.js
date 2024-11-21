@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation  } from 'react-router-dom';
 import { FaBars } from 'react-icons/fa';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import '../css/App.css';
 import axios from 'axios';
 
@@ -12,10 +14,6 @@ function ActualizarUsuario() {
     const [telefono, setTelefono] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const [showError, setShowError] = useState(false);
-    const [success, setSuccess] = useState('');
-    const [showSuccess, setShowSuccess] = useState(false);
     const location = useLocation();
     const  {usuarioId, rol}  = location.state || {};
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -37,55 +35,38 @@ function ActualizarUsuario() {
             })
             .catch(error => {
                 console.error("Error al obtener los datos del usuario:", error);
-                mostrarError("Hubo un error al cargar los datos del usuario.");
+                toast.error("Hubo un error al cargar los datos del usuario.");
             });
     }, []);
 
     const validarFormulario = () => {
         if (!email || !password || !confirmPassword || !telefono || !nombre) {
-            mostrarError('Por favor, ingresa todos los campos correctamente.');
+            toast.error('Por favor, ingresa todos los campos correctamente.');
             return false;
         }
 
         const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!regexEmail.test(email)) {
-            mostrarError('El correo electrónico no es válido.');
+            toast.error('El correo electrónico no es valido.');
             return false;
         }
-        const regexTelefono = /^(?:\+?\d{1,3}[-. ]?)?(?:\(?\d{2,3}\)?[-. ]?)?\d{3}[-. ]?\d{4}$/;
+        const regexTelefono = /^\d{10}$/;
         if (!regexTelefono.test(telefono)) {
-            mostrarError('El número de teléfono no es válido.');
+            toast.error('El número de teléfono no es valido.');
             return false;
         }
 
         if (password !== confirmPassword) {
-            mostrarError('La contraseña no coincide.');
+            toast.error('Las contraseñas no coinciden.');
             return false;
         }
 
         if (password.length < 6) {
-            mostrarError('La contraseña debe tener al menos 6 caracteres.');
+            toast.error('La contraseña debe tener al menos 6 caracteres.');
             return false;
         }
 
-        setError('');
         return true;
-    };
-
-    const mostrarError = (mensaje) => {
-        setError(mensaje);
-        setShowError(true);
-        setTimeout(() => {
-            setShowError(false);
-        }, 3000);
-    };
-
-    const mostrarSuccess = (mensaje) => {
-        setSuccess(mensaje);
-        setShowSuccess(true);
-        setTimeout(() => {
-            setShowSuccess(false);
-        }, 3000);
     };
 
     const handleActualizar = () => {
@@ -94,18 +75,18 @@ function ActualizarUsuario() {
             axios.post('http://localhost:8081/actualizarUsuario', values)
                 .then(() => {
                     if(rol === 'admin'){
-                        mostrarSuccess('¡Usuario actualizado exitosamente!');
+                        toast.success('¡Usuario actualizado exitosamente!');
                         setTimeout(() => navigate('/gestionUsuarios'), 3000);
                         
                     }else if(rol === 'cliente'){
-                        mostrarSuccess('¡Usuario actualizado exitosamente!');
+                        toast.success('¡Usuario actualizado exitosamente!');
                         setTimeout(() => navigate('/inicioCliente', {state: { usuarioId, rol } }), 1000);
                     }
                     //window.location.reload();
                 })
                 .catch(err => {
                     console.log('Error en la actualización: ', err);
-                    mostrarError('Hubo un error al actualizar el usuario.');
+                    toast.error('Hubo un error al actualizar el usuario.');
                 });
         }
     };
@@ -160,17 +141,7 @@ function ActualizarUsuario() {
                     </button>
                 </div>
             </div>
-
-            {showError && (
-                <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-red-500 text-white p-3 rounded-md shadow-md">
-                    {error}
-                </div>
-            )}
-            {showSuccess && (
-                <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-green-500 text-white p-3 rounded-md shadow-md">
-                    {success}
-                </div>
-            )}
+            <ToastContainer position="bottom-right" autoClose={3000} />
         </div>
         </>
     );

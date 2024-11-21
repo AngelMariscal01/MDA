@@ -221,13 +221,17 @@
 /* Estilo del contenedor final de la compra */
 .carrito-final {
     display: flex;
-    flex-direction:row;
+    flex-direction: column;
     align-items: center;
     gap: 15px;
-    margin: 20px;
+
 }
 
 .comprar {
+    display: block;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
     padding: 12px 24px;
     border: none;
     border-radius: 8px;
@@ -236,6 +240,7 @@
     font-size: 1.2rem;
     cursor: pointer;
     transition: background-color 0.3s;
+    margin-bottom: 20px;
 }
 
 .comprar:hover {
@@ -246,7 +251,6 @@
     font-size: 1.5rem;
     font-weight: bold;
     color: #4d3dac;
-    margin-bottom: 100px;
     text-align: center;
 }
 /* Campo de estado */

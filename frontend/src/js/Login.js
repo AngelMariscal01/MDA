@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import '../css/App.css';
 import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import logo from '../assets/LOGO-minidonasarenita.png';
 //const jwt = require('jsonwebtoken');
 //const jose = require('node-jose');
 
@@ -19,48 +22,35 @@ function IniciarSesion() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [showError, setShowError] = useState(false);
-  const [loginSuccessful, setLoginSuccessful] = useState(false);
 
   const validarFormulario = () => {
     // Verifica si el correo está vacío
     if (!email) {
-      mostrarError('Por favor, ingresa tu correo electrónico.');
+      toast.error('Por favor, ingresa tu correo electrónico.');
       return false;
     }
 
     // Verifica el formato del correo
     const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!regexEmail.test(email)) {
-      mostrarError('El correo electrónico no es valido.');
+      toast.error('El correo electrónico no es valido.');
       return false;
     }
 
     // Verifica si la contraseña está vacía
     if (!password) {
-      mostrarError('Por favor, ingresa tu contraseña.');
+      toast.error('Por favor, ingresa tu contraseña.');
       return false;
     }
 
     // Verifica la longitud de la contraseña
     if (password.length < 6) {
-      mostrarError('La contraseña debe tener al menos 6 caracteres.');
+      toast.error('La contraseña debe tener al menos 6 caracteres.');
       return false;
     }
 
-    // Si pasa todas las validaciones
-    setError('');
     return true;
-  };
-
-  const mostrarError = (mensaje) => {
-    setError(mensaje);
-    setShowError(true);
-    setTimeout(() => {
-      setShowError(false);
-    }, 3000); // Oculta el mensaje después de 3 segundos
-  };
+};
 
   const handleIniciarSesion = () => {
     if (validarFormulario()) {
@@ -72,20 +62,26 @@ function IniciarSesion() {
             if(token){
               localStorage.setItem('token', token)
               if(parseJwt(token).rol === 'admin' && parseJwt(token).estado === 'activo'){
-                navigate('/inicioAdministrador', { state: {usuarioId:parseJwt(token).usuario_id, rol:parseJwt(token).rol } })
-                window.location.reload();
+                toast.success('Bienvenido Administrador!');
+                setTimeout(() => {
+                  navigate('/inicioAdministrador', { state: {usuarioId:parseJwt(token).usuario_id, rol:parseJwt(token).rol } })
+                  window.location.reload();
+                }, 1000);
               }else if (parseJwt(token).rol === 'cliente' && parseJwt(token).estado === 'activo'){
-                navigate('/productos', { state: {usuarioId:parseJwt(token).usuario_id, rol:parseJwt(token).rol } })
-                window.location.reload();
+                toast.success('Bienvenido!');
+                setTimeout(() => {
+                  navigate('/productos', { state: {usuarioId:parseJwt(token).usuario_id, rol:parseJwt(token).rol } })
+                  window.location.reload();
+                }, 1000);
               }
               else if (parseJwt(token).estado === 'inactivo'){
-                mostrarError('Cuenta inactiva');
+                toast.error('Cuenta inactiva');
               }
             }
         })
         .catch(err => {
             console.log('Error en el inicio de sesión: ', err);
-            mostrarError('Hubo un error al iniciar sesión.');
+            toast.error('Error en el inicio de sesión');
         });
     }
   };
@@ -100,14 +96,14 @@ function IniciarSesion() {
         <div
           className="rounded-xl bg-cover bg-center bg-no-repeat min-h-[200px] sm:min-h-[250px] md:min-h-[300px] lg:min-h-[350px] flex flex-col justify-end"
           style={{
-            backgroundImage: 'url("https://cdn.usegalileo.ai/sdxl10/88fd3dd8-ae77-4aa8-b868-2b9be0c20761.png")',
+            backgroundImage: `url(${logo})`,
           }}
         ></div>
       </div>
 
       {/* Mensaje de Bienvenida */}
       <h2 className="text-[#140e1b] text-2xl font-bold text-center pt-5 pb-3 sm:text-3xl md:text-4xl lg:text-5xl">
-        Bienvenid@ de nuevo!
+        Bienvenid@ a Mini Donas Arenita!
       </h2>
 
       {/* Campos de Entrada */}
@@ -160,11 +156,7 @@ function IniciarSesion() {
       <a href="/contacto" className="text-[#734e97] text-sm text-center underline pb-3 sm:text-base">@Contacto</a>
 
       {/* Mensaje de Error */}
-      {showError && (
-        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-red-500 text-white p-3 rounded-md shadow-md">
-          {error}
-        </div>
-      )}
+      <ToastContainer position="bottom-right" autoClose={3000} />
       
       {/* Espacio al final */}
       <div className="h-5 bg-[#faf8fc]">

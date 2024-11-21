@@ -4,24 +4,18 @@ import { FaBars, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 import '../css/InicioCliente.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function UsuariosAdministrador() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [error, setError] = useState('');
-  const [showError, setShowError] = useState(false);
   const [usuarios, setUsuarios] = useState([]);
   const [searchTerm, setSearchTerm] = useState(''); // Estado para el término de búsqueda
   const navigate = useNavigate();
   const location = useLocation();
-  const { usuarioId, rol } = location.state || {};
+  const { rol } = location.state || {};
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-  
-  const mostrarError = (mensaje) => {
-    setError(mensaje);
-    setShowError(true);
-    setTimeout(() => setShowError(false), 3000); // Oculta el mensaje después de 3 segundos
-  };
 
   const cerrarSesion = () => {
     localStorage.removeItem('token');
@@ -35,7 +29,7 @@ function UsuariosAdministrador() {
       .then((response) => setUsuarios(response.data.usuarios))
       .catch((err) => {
         console.log('Error al cargar los usuarios:', err);
-        mostrarError('Hubo un error al cargar los usuarios.');
+        toast.error('Hubo un error al cargar los usuarios.');
       });
   }, []);
 
@@ -54,7 +48,7 @@ function UsuariosAdministrador() {
       })
       .catch((err) => {
         console.log('Error al actualizar el estado del usuario:', err);
-        mostrarError('Hubo un error al actualizar el estado del usuario.');
+        toast.error('Hubo un error al actualizar el estado del usuario.');
       });
   };
 
@@ -73,7 +67,7 @@ function UsuariosAdministrador() {
       })
       .catch((err) => {
         console.log('Error al actualizar el rol del usuario:', err);
-        mostrarError('Hubo un error al actualizar el rol del usuario.');
+        toast.error('Hubo un error al actualizar el rol del usuario.');
       });
   };
 
@@ -86,10 +80,13 @@ function UsuariosAdministrador() {
 
     axios
       .post('http://localhost:8081/usuarios/eliminar', { usuarioId })
-      .then(() => window.location.reload())
+      .then(() => {
+        toast.success('Usuario eliminado exitosamente.');
+        setTimeout(() => window.location.reload(), 3000);
+      })
       .catch((err) => {
         console.log('Error al eliminar el usuario:', err);
-        mostrarError('Hubo un error al eliminar el usuario.');
+        toast.error('Hubo un error al eliminar el usuario.');
       });
   };
 
@@ -173,7 +170,9 @@ function UsuariosAdministrador() {
             </tbody>
           </table>
         </div>
+        
       </main>
+      <ToastContainer position="bottom-right" autoClose={3000} />
     </div>
   );
 }

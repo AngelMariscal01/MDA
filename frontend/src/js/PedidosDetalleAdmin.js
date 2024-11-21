@@ -3,12 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FaBars } from 'react-icons/fa';
 import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function ProductCard({ product, cantidad, incrementarCantidad, disminuirCantidad, onDelete }) {
     const imagen = `http://localhost:8081${product.imagen}`;
-
-
-
     return (
         <div className="product-card">
             <img src={imagen} alt={`Imagen de ${product.nombre_producto}`} className="product-image" />
@@ -25,19 +24,14 @@ function ProductCard({ product, cantidad, incrementarCantidad, disminuirCantidad
 function DetallesPedido() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [productos, setProductos] = useState([]);
-    const [cantidades, setCantidades] = useState({});
     const [direccion, setDireccion] = useState('');
     const [notas, setNotas] = useState('');
-    const [error, setError] = useState('');
-    const [showError, setShowError] = useState(false);
     const [estadoPedido, setEstadoPedido] = useState(''); // Estado actual
     const [estados, setEstados] = useState([]); // Lista de estados disponibles
     const [fechaEntrega, setFechaEntrega] = useState(''); // Fecha estimada de entrega
     const [horaEntrega, setHoraEntrega] = useState(''); // Hora estimada de entrega
-
     const location = useLocation();
     const { pedido_id } = location.state || {};
-
     const [nombreUsuario, setNombreUsuario] = useState('');
     const [telefono, setTelefono] = useState('');
     const [totalPedido, setTotal] = useState(0);
@@ -80,12 +74,6 @@ function DetallesPedido() {
         window.location.reload();
     };
 
-    const mostrarError = (mensaje) => {
-        setError(mensaje);
-        setShowError(true);
-        setTimeout(() => setShowError(false), 3000);
-    };
-
     const actualizarFechaHoraEntrega = () => {
         axios
             .post('http://localhost:8081/actualizarFechaHoraEntrega', {
@@ -93,8 +81,8 @@ function DetallesPedido() {
                 fecha_entrega: fechaEntrega,
                 hora_entrega: horaEntrega
             })
-            .then(() => alert('Fecha y hora actualizadas correctamente'))
-            .catch((err) => mostrarError('Error al actualizar fecha y hora.'));
+            .then(() => toast.success('Fecha y hora actualizadas correctamente'))
+            .catch((err) => toast.error('Error al actualizar fecha y hora', err));
     };
 
     const actualizarEstadoPedido = () => {
@@ -106,23 +94,23 @@ function DetallesPedido() {
                 hora_entrega_estimada: horaEntrega,
             })
             .then(() => {
-                alert('Estado y detalles de entrega actualizados correctamente');
+                toast.success('Estado y detalles de entrega actualizados correctamente');
                 setTimeout(() => navigate('/gestionPedidos'), 1000);
             })
-            .catch((err) => mostrarError('Error al actualizar el estado del pedido.'));
+            .catch((err) => toast.success('Error al actualizar el estado del pedido', err));
     };
 
     const handleActualizar = () => {
         if (estadoPedido === '') {
-            mostrarError('Seleccione un estado.');
+            toast.error('Por favor, seleccione un estado.');
             return;
         }
         if (fechaEntrega === '') {
-            mostrarError('Seleccione una fecha de entrega.');
+            toast.error('Por favor, seleccione una fecha de entrega.');
             return;
         }
         if (horaEntrega === '') {
-            mostrarError('Seleccione una hora de entrega.');
+            toast.error('Por favor, seleccione una hora de entrega.');
             return;
         }
         actualizarFechaHoraEntrega();
@@ -211,11 +199,7 @@ function DetallesPedido() {
                         </button>
                     </>
                 )}
-                {showError && (
-                    <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-red-500 text-white p-3 rounded-md shadow-md">
-                        {error}
-                    </div>
-                )}
+                <ToastContainer position="bottom-right" autoClose={3000} />
             </main>
         </div>
     );

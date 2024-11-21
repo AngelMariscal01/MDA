@@ -1,56 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation  } from 'react-router-dom';
+import React, { useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import '../css/App.css';
 import axios from 'axios';
 
 function RecuperarContrasena() {
-    const navigate = useNavigate();
     const [email, setEmail] = useState('');
-    const [error, setError] = useState('');
-    const [showError, setShowError] = useState(false);
-    const [success, setSuccess] = useState('');
-    const [showSuccess, setShowSuccess] = useState(false);
 
 
     const validarFormulario = () => {
         if (!email) {
-            mostrarError('Por favor, ingresa todos los campos correctamente.');
+            toast.error('Por favor, ingresa tu correo electrónica.');
             return false;
         }
         const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!regexEmail.test(email)) {
-            mostrarError('El correo electrónico no es válido.');
+            toast.error('El correo electrónica no es valido.');
             return false;
         }
-        setError('');
         return true;
     };
 
-    const mostrarError = (mensaje) => {
-        setError(mensaje);
-        setShowError(true);
-        setTimeout(() => {
-            setShowError(false);
-        }, 3000);
-    };
-    const mostrarSuccess = (mensaje) => {
-        setSuccess(mensaje);
-        setShowSuccess(true);
-        setTimeout(() => {
-            setShowSuccess(false);
-        }, 3000);
-    };
 
     const handleRecuperarContrasena = () => {
         if (validarFormulario()) {
             const values = {email};
             axios.post('http://localhost:8081/recuperarContrasena', values)
                 .then(() => {
-                    mostrarSuccess('¡Revisa tu correo para validar tu contraseña!');
+                    toast.success('¡Revisa tu correo para validar tu contraseña!');
                 })
                 .catch(err => {
                     console.log('Error en la actualización: ', err);
-                    mostrarError('Hubo un error al actualizar el usuario.');
+                    toast.error('Hubo un error al actualizar el usuario.');
                 });
         }
     };
@@ -73,16 +54,7 @@ function RecuperarContrasena() {
                 </div>
             </div>
 
-            {showError && (
-                <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-red-500 text-white p-3 rounded-md shadow-md">
-                    {error}
-                </div>
-            )}
-            {showSuccess && (
-                <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-green-500 text-white p-3 rounded-md shadow-md">
-                    {success}
-                </div>
-            )}
+            <ToastContainer position="bottom-right" autoClose={3000} />
         </div>
     );
 }

@@ -2,14 +2,15 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import '../css/App.css';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function RestablecerContrasena() {
     const navigate = useNavigate();
     const location = useLocation();
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
+
 
     // Obtiene el token desde la URL (por ejemplo, /reset-password?token=XYZ)
     const queryParams = new URLSearchParams(location.search);
@@ -18,18 +19,17 @@ function RestablecerContrasena() {
 
     const validarFormulario = () => {
         if (!password || !confirmPassword) {
-            setError('Por favor, ingresa todos los campos.');
+            toast.error('Por favor, ingresa todos los campos.');
             return false;
         }
         if (password !== confirmPassword) {
-            setError('Las contraseñas no coinciden.');
+            toast.error('Las contraseñas no coinciden.');
             return false;
         }
         if (password.length < 6) {
-            setError('La contraseña debe tener al menos 6 caracteres.');
+            toast.error('La contraseña debe tener al menos 6 caracteres.');
             return false;
         }
-        setError('');
         return true;
     };
 
@@ -38,12 +38,12 @@ function RestablecerContrasena() {
         if (validarFormulario()) {
             axios.post('http://localhost:8081/restablecerContrasena', { password, token })
                 .then(() => {
-                    setSuccess('¡Tu contraseña ha sido restablecida con éxito!');
+                    toast.success('¡Tu contraseña ha sido restablecida con éxito!');
                     setTimeout(() => navigate('/'), 3000); // Redirige al login después de 3 segundos
                 })
                 .catch(err => {
                     console.error('Error al restablecer la contraseña:', err);
-                    setError('Hubo un error al restablecer la contraseña.');
+                    toast.error('Hubo un error al restablecer la contraseña.');
                 });
         }
     };
@@ -82,16 +82,7 @@ function RestablecerContrasena() {
                     </button>
                 </div>
 
-                {error && (
-                    <div className="mt-4 text-red-500 text-center">
-                        {error}
-                    </div>
-                )}
-                {success && (
-                    <div className="mt-4 text-green-500 text-center">
-                        {success}
-                    </div>
-                )}
+                <ToastContainer position="bottom-right" autoClose={3000} />
             </div>
         </div>
     );

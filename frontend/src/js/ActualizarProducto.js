@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import '../css/RegistrarProducto.css';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function ActualizarProducto() {
     const [productName, setProductName] = useState('');
@@ -98,9 +100,14 @@ function ActualizarProducto() {
         })
             .then((response) => {
                 console.log('Producto actualizado:', response.data);
-                navigate('/gestionProductos');
+                toast.success('Producto actualizado correctamente');
+                setTimeout(() => {
+                    navigate('/gestionProductos');
+                }, 1000);
+                
             })
             .catch((err) => {
+                toast.error('Error al actualizar el producto');
                 console.log('Error al actualizar el producto:', err);
             });
     };
@@ -225,6 +232,7 @@ function ActualizarProducto() {
             
                 <button type="submit">Actualizar Producto</button>
             </form>
+            <ToastContainer position="bottom-right" autoClose={3000} />
         </div>
     );
 }

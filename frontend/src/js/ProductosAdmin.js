@@ -4,9 +4,10 @@ import '../css/ProductosAdministrador.css';
 
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaBars, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
-
+import { FaBars} from 'react-icons/fa';
 import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 // Componente de tarjeta de producto
@@ -26,6 +27,7 @@ function ProductCard({ product }) {
             .post('http://localhost:8081/eliminarProducto', { producto_id: productoId })
             .then(() => window.location.reload())
             .catch((err) => {
+                toast.error('Error al eliminar el producto.');
                 console.log('Error al eliminar el usuario:', err);
                 //mostrarError('Hubo un error al eliminar el usuario.');
             });
@@ -38,6 +40,7 @@ function ProductCard({ product }) {
             .post('http://localhost:8081/actualizarEstadoProducto', { producto_id: productoId, estado: nuevoEstado ? 'activo' : 'inactivo' })
             .then(() => window.location.reload())
             .catch((err) => {
+                toast.error('Error al cambiar el estado del producto.');
                 console.log('Error al cambiar el estado del producto:', err);
                 //mostrarError('Hubo un error al cambiar el estado del producto.');
             })
@@ -118,8 +121,6 @@ function ProductosAdministrador() {
     
     }, []);
     
-    console.log(productos);
-
     const cerrarSesion = () => {
         localStorage.removeItem('token');
         navigate('/');
@@ -186,6 +187,7 @@ function ProductosAdministrador() {
                         <ProductCard key={product.producto_id} product={product} />
                     ))}
                 </div>
+                <ToastContainer position="bottom-right" autoClose={3000} />
             </main>
         </div>
     );

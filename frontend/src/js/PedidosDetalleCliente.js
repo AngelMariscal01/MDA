@@ -6,9 +6,6 @@ import axios from 'axios';
 
 function ProductCard({ product, cantidad, incrementarCantidad, disminuirCantidad, onDelete }) {
     const imagen = `http://localhost:8081${product.imagen}`;
-
-
-
     return (
         <div className="product-card">
             <img src={imagen} alt={`Imagen de ${product.nombre_producto}`} className="product-image" />
@@ -25,11 +22,8 @@ function ProductCard({ product, cantidad, incrementarCantidad, disminuirCantidad
 function DetallesPedidoCliente() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [productos, setProductos] = useState([]);
-    const [cantidades, setCantidades] = useState({});
     const [direccion, setDireccion] = useState('');
     const [notas, setNotas] = useState('');
-    const [error, setError] = useState('');
-    const [showError, setShowError] = useState(false);
     const [estadoPedido, setEstadoPedido] = useState(''); // Estado actual
     const [estados, setEstados] = useState([]); // Lista de estados disponibles
     const [fechaEntrega, setFechaEntrega] = useState(''); // Fecha estimada de entrega
@@ -78,60 +72,6 @@ function DetallesPedidoCliente() {
         nombre: estado.estado_nombre,
         activo: index <= estadoIndex, // Determina si el estado está activo o no
     }));
-    const cerrarSesion = () => {
-        localStorage.removeItem('token');
-        navigate('/');
-        window.location.reload();
-    };
-
-    const mostrarError = (mensaje) => {
-        setError(mensaje);
-        setShowError(true);
-        setTimeout(() => setShowError(false), 3000);
-    };
-
-    const actualizarFechaHoraEntrega = () => {
-        axios
-            .post('http://localhost:8081/actualizarFechaHoraEntrega', {
-                pedido_id: pedido_id,
-                fecha_entrega: fechaEntrega,
-                hora_entrega: horaEntrega
-            })
-            .then(() => alert('Fecha y hora actualizadas correctamente'))
-            .catch((err) => mostrarError('Error al actualizar fecha y hora.'));
-    };
-
-    const actualizarEstadoPedido = () => {
-        axios
-            .post('http://localhost:8081/actualizarEstadoPedido', {
-                pedido_id,
-                estado_id: estadoPedido,
-                fecha_entrega_estimada: fechaEntrega,
-                hora_entrega_estimada: horaEntrega,
-            })
-            .then(() => {
-                alert('Estado y detalles de entrega actualizados correctamente');
-                setTimeout(() => navigate('/gestionPedidos'), 1000);
-            })
-            .catch((err) => mostrarError('Error al actualizar el estado del pedido.'));
-    };
-
-    const handleActualizar = () => {
-        if (estadoPedido === '') {
-            mostrarError('Seleccione un estado.');
-            return;
-        }
-        if (fechaEntrega === '') {
-            mostrarError('Seleccione una fecha de entrega.');
-            return;
-        }
-        if (horaEntrega === '') {
-            mostrarError('Seleccione una hora de entrega.');
-            return;
-        }
-        actualizarFechaHoraEntrega();
-        actualizarEstadoPedido();
-    };
 
     return (
         <div className="inicio-cliente">
@@ -222,7 +162,7 @@ function DetallesPedidoCliente() {
                                     
                                 </ul>
                             </label>
-                        </div> : fechaEntrega && estadoPedido == '35d48694-9551-4f0f-aa08-e152356a96bb' ?
+                        </div> : fechaEntrega && estadoPedido === '35d48694-9551-4f0f-aa08-e152356a96bb' ?
                             <div className='alerta'>
                             <label>Instrucciones: 
                                 <ul>
@@ -249,11 +189,6 @@ function DetallesPedidoCliente() {
                         <br></br>
                         <br></br>
                     </>
-                )}
-                {showError && (
-                    <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-red-500 text-white p-3 rounded-md shadow-md">
-                        {error}
-                    </div>
                 )}
             </main>
         </div>

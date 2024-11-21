@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import IniciarSesion from "./Login";
 import Registrarse from "./RegistrarUsuario";
-import InicioCliente from "./InicioCliente";
 import InicioAdministrador from "./InicioAdmin";
 import UsuariosAdministrador from "./UsuariosAdmin";
 import ActualizarUsuario from "./ActualizarUsuario";

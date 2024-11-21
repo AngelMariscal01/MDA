@@ -3,21 +3,20 @@
 import '../css/ProductosAdministrador.css';
 
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FaBars, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
-
+import { Link} from 'react-router-dom';
+import { FaBars} from 'react-icons/fa';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
+
 
 
 // Componente de tarjeta de producto
 function ProductCard({ product }) {
-    const navigate = useNavigate();
     const imagen = `http://localhost:8081${product.imagen}`;
     const [cantidad, setCantidad] = useState(1);
-    const location = useLocation();
-    const  {usuarioId, rol}  = location.state || {};
     const handleAgregarAlCarrito = (productoId) => {
-        alert('Inicia sesion para agregar al carrito.');
+        toast.error('Inicia sesion para agregar al carrito.');
     };
 
     const incrementarCantidad = () => {
@@ -58,10 +57,6 @@ function Inicio() {
     const [categorias, setCategorias] = useState([]); // Estado para las categorías
     const [categoriasProducto, setCategoriasProducto] = useState([]); // Estado para las categorías
     const [selectedCategory, setSelectedCategory] = useState(''); // Estado para la categoría seleccionada
-    const location = useLocation();
-    const  {usuarioId, rol}  = location.state || {};
-    
-    const navigate = useNavigate();
 
     useEffect(() => {
         // Obtener productos
@@ -106,12 +101,6 @@ function Inicio() {
             });
     
     }, []);
-
-    const cerrarSesion = () => {
-        localStorage.removeItem('token');
-        navigate('/');
-        window.location.reload();
-    };
     
 
 
@@ -170,6 +159,7 @@ function Inicio() {
                         <ProductCard key={product.producto_id} product={product} />
                     ))}
                 </div>
+                <ToastContainer position="bottom-right" autoClose={3000} />
             </main>
         </div>
     );

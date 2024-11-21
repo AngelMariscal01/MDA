@@ -196,9 +196,12 @@ function Estadisticas() {
                 pedido.total,
             ]),
         });
-            
+        var total = 0;
             // Calcular el total
-        const total = pedidosTabla.reduce((acc, pedido) => acc + pedido.total, 0);
+        pedidosTabla.forEach((pedido) => {
+            total += parseFloat(pedido.total);
+        }); 
+
             
             // Agregar el total al final del PDF
         doc.text(`Total: $${parseFloat(total).toFixed(2)}`, 14, doc.lastAutoTable.finalY + 10);

@@ -4,18 +4,18 @@ import '../css/ProductosAdministrador.css';
 
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FaBars, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
-
+import { FaBars} from 'react-icons/fa';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 
 
 // Componente de tarjeta de producto
 function ProductCard({ product }) {
-    const navigate = useNavigate();
     const imagen = `http://localhost:8081${product.imagen}`;
     const [cantidad, setCantidad] = useState(1);
     const location = useLocation();
-    const  {usuarioId, rol}  = location.state || {};
+    const  {usuarioId}  = location.state || {};
     const handleAgregarAlCarrito = (productoId) => {
         axios
         .post('http://localhost:8081/agregarAlCarrito', {
@@ -24,11 +24,11 @@ function ProductCard({ product }) {
             cantidad: cantidad,
         })
         .then(() => {
-            alert('Producto agregado al carrito exitosamente');
+            toast.success('Producto agregado al carrito exitosamente');
         })
         .catch((err) => {
             console.error('Error al agregar al carrito:', err);
-            alert('Hubo un problema al agregar el producto al carrito');
+            toast.error('Error al agregar al carrito');
         });    
     };
 
@@ -38,7 +38,6 @@ function ProductCard({ product }) {
     const disminuirCantidad = () => {
         if (cantidad > 1){ 
             setCantidad(cantidad - 1);
-            
         }
     };
     
@@ -185,6 +184,7 @@ function ProductosCliente() {
                         <ProductCard key={product.producto_id} product={product} />
                     ))}
                 </div>
+                <ToastContainer position="bottom-right" autoClose={3000} />
             </main>
         </div>
     );

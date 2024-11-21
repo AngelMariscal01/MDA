@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../css/App.css';
-import axios from 'axios'
+import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Registrarse() {
     const navigate = useNavigate();
@@ -11,141 +13,116 @@ function Registrarse() {
     const [telefono, setTelefono] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const [showError, setShowError] = useState(false);
 
     const validarFormulario = () => {
-        // Verifica si el correo está vacío
-        if (!email || !password || !confirmPassword || !telefono || !nombre || !apellido) {
-            mostrarError('Por favor, ingresa todos los campos correctamente.');
+        const trimmedNombre = nombre.trim();
+        const trimmedApellido = apellido.trim();
+        const trimmedEmail = email.trim();
+        const trimmedTelefono = telefono.trim();
+        const trimmedPassword = password.trim();
+        const trimmedConfirmPassword = confirmPassword.trim();
+
+        if (!trimmedNombre || !trimmedApellido || !trimmedEmail || !trimmedTelefono || !trimmedPassword || !trimmedConfirmPassword) {
+            toast.error('Por favor, completa todos los campos.');
             return false;
         }
 
-        // Verifica el formato del correo
         const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!regexEmail.test(email)) {
-            mostrarError('El correo electrónico no es valido.');
-            return false;
-        }
-        const regexTelefono = /^(?:\+?\d{1,3}[-. ]?)?(?:\(?\d{2,3}\)?[-. ]?)?\d{3}[-. ]?\d{4}$/;
-        if (!regexTelefono.test(telefono)) {
-            mostrarError('El número de telefono no es valido.');
+        if (!regexEmail.test(trimmedEmail)) {
+            toast.error('El correo electrónico no es válido.');
             return false;
         }
 
-        // Verifica si la contraseña está vacía
-        if (password !== confirmPassword) {
-            mostrarError('La contraseña no coincide.');
+        const regexTelefono = /^\d{10}$/;
+        if (!regexTelefono.test(trimmedTelefono)) {
+            toast.error('El número de teléfono debe tener exactamente 10 dígitos.');
             return false;
         }
 
-        // Verifica la longitud de la contraseña
-        if (password.length < 6) {
-            mostrarError('La contraseña debe tener al menos 6 caracteres.');
+        if (trimmedPassword !== trimmedConfirmPassword) {
+            toast.error('Las contraseñas no coinciden.');
             return false;
         }
 
-        // Si pasa todas las validaciones
-        setError('');
+        if (trimmedPassword.length < 6) {
+            toast.error('La contraseña debe tener al menos 6 caracteres.');
+            return false;
+        }
+
         return true;
-    };
-
-    const mostrarError = (mensaje) => {
-        setError(mensaje);
-        setShowError(true);
-        setTimeout(() => {
-            setShowError(false);
-        }, 3000); // Oculta el mensaje después de 3 segundos
     };
 
     const handleRegistrarse = () => {
         if (validarFormulario()) {
-            const nombreCompleto = nombre + " " + apellido
-            const values = {nombreCompleto, email, telefono, password};
+            const nombreCompleto = `${nombre.trim()} ${apellido.trim()}`;
+            const values = { nombreCompleto, email: email.trim(), telefono: telefono.trim(), password: password.trim() };
+
             axios.post('http://localhost:8081/registrarUsuario', values)
-            .then(()=>{
-                navigate('/iniciarSesion');
-            })
-            .catch(err => {
-                console.log('Error en el registro: ', err);
-                mostrarError('Hubo un error al registrar el usuario.');
-            });
+                .then(() => {
+                    toast.success('Usuario registrado con éxito!');
+                    setTimeout(() => navigate('/iniciarSesion'), 3000);
+                })
+                .catch(err => {
+                    console.error('Error en el registro:', err);
+                    toast.error('Hubo un error al registrar el usuario. Inténtalo de nuevo.');
+                });
         }
     };
 
     return (
         <div
             className="relative flex w-full min-h-screen flex-col bg-[#faf8fc] overflow-x-hidden"
-            style={{ fontFamily: 'Epilogue, "Noto Sans", sans-serif' , background: '#cea5db'}}
-            
+            style={{ fontFamily: 'Epilogue, "Noto Sans", sans-serif', background: '#cea5db' }}
         >
-            {/* Mensaje de Bienvenida */}
             <h2 className="text-[#140e1b] text-2xl font-bold text-center pt-5 pb-3 sm:text-3xl md:text-4xl lg:text-5xl">
                 ¡Regístrate!
             </h2>
 
-            {/* Contenedor del Formulario */}
             <div className="max-w-lg w-full mx-auto p-6 bg-white rounded-lg shadow-lg">
-                {/* Campos de Entrada */}
                 <div className="flex flex-col gap-4">
-                    <label htmlFor='name' className="flex flex-col">
-                        <input
-                            type="text"
-                            placeholder="Ingresa tu(s) nombre(s)"
-                            className="form-input rounded-xl bg-[#ede7f3] text-[#140e1b] placeholder:text-[#734e97] h-12 sm:h-14 px-4 py-2 sm:py-3 text-base leading-tight"
-                            value={nombre}
-                            onChange={(e) => setNombre(e.target.value)}
-                        />
-                    </label>
-                    <label htmlFor='lastname' className="flex flex-col">
-                        <input
-                            type="text"
-                            placeholder="Ingresa tu(s) apellido(s)"
-                            className="form-input rounded-xl bg-[#ede7f3] text-[#140e1b] placeholder:text-[#734e97] h-12 sm:h-14 px-4 py-2 sm:py-3 text-base leading-tight"
-                            value={apellido}
-                            onChange={(e) => setApellido(e.target.value)}
-                        />
-                    </label>
-                    <label htmlFor='phone' className="flex flex-col">
-                        <input
-                            type="tel"
-                            pattern='[0-9]{10}'
-                            placeholder="Ingresa tu teléfono"
-                            className="form-input rounded-xl bg-[#ede7f3] text-[#140e1b] placeholder:text-[#734e97] h-12 sm:h-14 px-4 py-2 sm:py-3 text-base leading-tight"
-                            value={telefono}
-                            onChange={(e) => setTelefono(e.target.value)}
-                        />
-                    </label>
-                    <label htmlFor='email' className="flex flex-col">
-                        <input
-                            placeholder="Ingresa tu correo electrónico"
-                            className="form-input rounded-xl bg-[#ede7f3] text-[#140e1b] placeholder:text-[#734e97] h-12 sm:h-14 px-4 py-2 sm:py-3 text-base leading-tight"
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
-                    </label>
-                    <label htmlFor='password' className="flex flex-col">
-                        <input
-                            type="password"
-                            placeholder="Ingresa tu contraseña"
-                            className="form-input rounded-xl bg-[#ede7f3] text-[#140e1b] placeholder:text-[#734e97] h-12 sm:h-14 px-4 py-2 sm:py-3 text-base leading-tight"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
-                    </label>
-                    <label htmlFor='confirmPassword' className="flex flex-col">
-                        <input
-                            type="password"
-                            placeholder="Confirmar tu contraseña"
-                            className="form-input rounded-xl bg-[#ede7f3] text-[#140e1b] placeholder:text-[#734e97] h-12 sm:h-14 px-4 py-2 sm:py-3 text-base leading-tight"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                        />
-                    </label>
+                    <input
+                        type="text"
+                        placeholder="Ingresa tu(s) nombre(s)"
+                        className="form-input rounded-xl bg-[#ede7f3] text-[#140e1b] placeholder:text-[#734e97] h-12 sm:h-14 px-4 py-2 sm:py-3 text-base leading-tight"
+                        value={nombre}
+                        onChange={(e) => setNombre(e.target.value)}
+                    />
+                    <input
+                        type="text"
+                        placeholder="Ingresa tu(s) apellido(s)"
+                        className="form-input rounded-xl bg-[#ede7f3] text-[#140e1b] placeholder:text-[#734e97] h-12 sm:h-14 px-4 py-2 sm:py-3 text-base leading-tight"
+                        value={apellido}
+                        onChange={(e) => setApellido(e.target.value)}
+                    />
+                    <input
+                        type="tel"
+                        placeholder="Ingresa tu teléfono"
+                        className="form-input rounded-xl bg-[#ede7f3] text-[#140e1b] placeholder:text-[#734e97] h-12 sm:h-14 px-4 py-2 sm:py-3 text-base leading-tight"
+                        value={telefono}
+                        onChange={(e) => setTelefono(e.target.value)}
+                    />
+                    <input
+                        placeholder="Ingresa tu correo electrónico"
+                        className="form-input rounded-xl bg-[#ede7f3] text-[#140e1b] placeholder:text-[#734e97] h-12 sm:h-14 px-4 py-2 sm:py-3 text-base leading-tight"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <input
+                        type="password"
+                        placeholder="Ingresa tu contraseña"
+                        className="form-input rounded-xl bg-[#ede7f3] text-[#140e1b] placeholder:text-[#734e97] h-12 sm:h-14 px-4 py-2 sm:py-3 text-base leading-tight"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <input
+                        type="password"
+                        placeholder="Confirmar tu contraseña"
+                        className="form-input rounded-xl bg-[#ede7f3] text-[#140e1b] placeholder:text-[#734e97] h-12 sm:h-14 px-4 py-2 sm:py-3 text-base leading-tight"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
                 </div>
-
-                {/* Botones de Acción */}
                 <div className="flex justify-center mt-4">
                     <button
                         type="button"
@@ -157,14 +134,7 @@ function Registrarse() {
                 </div>
             </div>
 
-            {/* Mensaje de Error */}
-            {showError && (
-                <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-red-500 text-white p-3 rounded-md shadow-md">
-                    {error}
-                </div>
-            )}
-
-
+            <ToastContainer position="bottom-right" autoClose={3000} />
         </div>
     );
 }

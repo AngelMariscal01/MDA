@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FaBars, FaInfoCircle, FaTrash } from 'react-icons/fa';
 import '../css/Pedidos.css';
 import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function PedidosAdmin() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -46,10 +48,11 @@ function PedidosAdmin() {
             // Aquí puedes llamar a una API para eliminar el pedido en la base de datos
             axios.post('http://localhost:8081/eliminarPedido', { pedido_id: numeroPedido })
                 .then(() => {
-                    alert('Pedido eliminado exitosamente.');
+                    toast.success('Pedido eliminado exitosamente.');
                     window.location.reload();
                 })
                 .catch((err) => {
+                    toast.error('Error al eliminar el pedido.');
                     console.error('Error al eliminar el pedido:', err);
             })
         }
@@ -166,6 +169,7 @@ function PedidosAdmin() {
                         </tbody>
                     </table>
                 </div>
+                <ToastContainer position="bottom-right" autoClose={3000} />
             </main>
         </div>
     );

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FaBars, FaInfoCircle, FaTrash } from 'react-icons/fa';
+import { FaBars, FaInfoCircle } from 'react-icons/fa';
 import '../css/Pedidos.css';
 import axios from 'axios';
 
@@ -31,7 +31,7 @@ function PedidosCliente() {
             })
             .then((response) => {
                 console.log('Pedidos obtenidos:', response.data);
-                if(response.data.message == 'No hay pedidos') {
+                if(response.data.message === 'No hay pedidos') {
                     console.log('No hay pedidos');
                     setPedidos(Array.isArray(response.data.pedidos) ? response.data.pedidos : []);
                 }else{
