@@ -28,10 +28,81 @@
   color: #61dafb;
 }
 
+.imagen-registro {
+  position: absolute;
+  bottom: -50px;
+  /* Inicialmente oculta parcialmente */
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  /* Imagen oculta inicialmente */
+  transition: opacity 0.5s ease, bottom 0.5s ease;
+  /* Animaciones suaves */
+}
+
+.registro-container:hover+.imagen-registro {
+  opacity: 1;
+  /* Imagen completamente visible */
+  bottom: 20px;
+  /* Se muestra cuando el usuario interactúa */
+}
+
+{/* CSS IMAGEN */}
+
+/* Contenedor responsivo del logo */
+.logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #F2A7A7;
+  padding: 20px;
+  overflow: hidden;
+  position: relative;
+  height: 300px; /* Altura fija para asegurar el resplandor */
+}
+
+/* Imagen del logo con resplandor */
+.logo-resplandor {
+  animation: resplandor-notorio 2s infinite;
+  border-radius: 50%;
+  width: auto;
+  height: 100%; /* Asegura que se ajuste al contenedor */
+  max-height: 250px; /* Límite máximo para pantallas grandes */
+  object-fit: contain; /* Mantiene la proporción */
+}
+
+/* Mejora del resplandor */
+@keyframes resplandor-notorio {
+  0% {
+    box-shadow: 0 0 25px rgba(217, 119, 137, 0.7),
+                0 0 50px rgba(217, 119, 137, 0.5),
+                0 0 75px rgba(217, 119, 137, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 50px rgba(217, 119, 137, 0.9),
+                0 0 100px rgba(217, 119, 137, 0.7),
+                0 0 150px rgba(217, 119, 137, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 25px rgba(217, 119, 137, 0.7),
+                0 0 50px rgba(217, 119, 137, 0.5),
+                0 0 75px rgba(217, 119, 137, 0.3);
+  }
+}
+
+.logo-resplandor {
+  animation: resplandor-notorio 2s infinite;
+  transition: all 0.3s ease-in-out;
+  border-radius: 50%; /* Asegura bordes suaves */
+}
+
+
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -40,8 +111,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 body {
-  background-color: #ff5733; /* Cambia esto al color que desees */
+  background-color: #ff5733;
+  /* Cambia esto al color que desees */
   /*background-image: url('/path/to/your/image.jpg'); /* Cambia esto a la URL de tu imagen */
-  background-size: cover; /* Para cubrir todo el fondo */
+  background-size: cover;
+  /* Para cubrir todo el fondo */
 }

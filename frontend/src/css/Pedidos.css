@@ -1,137 +1,178 @@
-.main-content-pedidos-admin {
+:root {
+    /* Paleta de colores */
+    --color-primario: #D97789; /* Rosado fuerte */
+    --color-secundario: #D9BB84; /* Dorado claro */
+    --color-terciario: #F2D5C4; /* Beige claro */
+    --color-acento: #F2A7A7; /* Rosado pastel */
+    --color-fondo: #F9F9F9; /* Fondo claro */
+    --color-texto: #333333; /* Gris oscuro */
+    --color-borde: #ccc; /* Gris claro */
+    
+    /* Tipografía */
+    --font-family: 'Poppins', sans-serif;
+  }
+  
+  /* General */
+  body {
+    font-family: var(--font-family);
+    background-color: var(--color-fondo);
+    margin: 0;
+    padding: 0;
+    color: var(--color-texto);
+  }
+  
+  /* Contenedor Principal */
+  .main-content-pedidos-admin {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
     width: 100%;
-}
-
-.main-content-pedidos-admin h1 {
+  }
+  
+  .main-content-pedidos-admin h1 {
     font-size: 2rem;
-    color: #8019e6;
+    color: var(--color-primario);
     margin: 10px;
-}
-
-.search-bar-pedidos {
+  }
+  
+  .search-bar-pedidos {
     display: flex;
-    flex-wrap: wrap; /* Permite que los elementos se ajusten a la siguiente línea si es necesario */
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
-    width: 90%; /* Hace que el contenedor ocupe todo el ancho disponible */
-}
-
-.search-input-pedidos,
-.search-input-productos-admin,
-.filter-input-pedidos,
-.filter-select-pedidos {
-    padding: 5px;
-    border: 1px solid #4d3dac;
-    border-radius: 4px;
-    margin-bottom: 10px; /* Añade un poco de espacio entre los elementos */
-    box-sizing: border-box; /* Asegura que el padding no afecte al ancho total */
-}
-
-/* Responsivo para pantallas grandes */
-.search-input-pedidos,
-.search-input-productos-admin,
-.filter-input-pedidos,
-.filter-select-pedidos {
-    width: 49%; /* Ocupa el 48% del espacio disponible para que quepan dos en una fila */
-}
-
-/* En pantallas más pequeñas, que los inputs ocupen el 100% del ancho */
-@media (max-width: 768px) {
+    width: 90%;
+  }
+  
+  .search-input-pedidos,
+  .search-input-productos-admin,
+  .filter-input-pedidos,
+  .filter-select-pedidos {
+    padding: 10px;
+    border: 1px solid var(--color-borde);
+    border-radius: 6px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    font-size: 1rem;
+    background-color: white;
+    transition: all 0.3s ease;
+  }
+  
+  /* Hover en inputs */
+  .search-input-pedidos:hover,
+  .search-input-productos-admin:hover,
+  .filter-input-pedidos:hover,
+  .filter-select-pedidos:hover {
+    border-color: var(--color-primario);
+  }
+  
+  /* Inputs en pantallas grandes */
+  .search-input-pedidos,
+  .search-input-productos-admin,
+  .filter-input-pedidos,
+  .filter-select-pedidos {
+    width: 49%;
+  }
+  
+  /* Inputs en pantallas pequeñas */
+  @media (max-width: 768px) {
     .search-input-pedidos,
     .search-input-productos-admin,
     .filter-input-pedidos,
     .filter-select-pedidos {
-        width: 100%; /* Los inputs ocupan todo el ancho */
+      width: 100%;
     }
-}
-
-
-.table-responsive {
+  }
+  
+  /* Tabla Responsive */
+  .table-responsive {
     overflow-x: auto;
     margin-top: 20px;
     width: 100%;
     max-width: 1000px;
     border-radius: 8px;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.pedidos-table {
+  }
+  
+  .pedidos-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate; /* Permite bordes separados para un diseño más estético */
+    border-spacing: 0; /* Espaciado entre celdas */
     text-align: left;
-}
-
-.pedidos-table th,
-.pedidos-table td {
+    border-radius: 8px; /* Bordes redondeados */
+    overflow: hidden; /* Evita que los bordes sobresalgan */
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); /* Sombra para dar un efecto elegante */
+  }
+  
+  .pedidos-table th,
+  .pedidos-table td {
     padding: 12px;
-    border: 1px solid #ddd;
-}
-
-.pedidos-table th {
-    background-color: #8019e6;
-    color: #faf8fc;
+    border: 1px solid var(--color-borde);
+  }
+  
+  .pedidos-table th {
+    background-color: var(--color-secundario); /* Usamos el dorado claro (#D9BB84) */
+    color: var(--color-texto); /* Gris oscuro para el texto */
     text-transform: uppercase;
-}
-
-.pedidos-table td {
-    background-color: #fff;
-}
-
-.info-button,
-.delete-button {
+  }
+  
+  .pedidos-table td {
+    background-color: var(--color-terciario); /* Beige claro (#F2D5C4) */
+    color: var(--color-texto); /* Gris oscuro para el texto */
+  }
+  
+  /* Botones */
+  .info-button,
+  .delete-button {
     background: none;
     border: none;
     cursor: pointer;
     font-size: 1.2rem;
     margin-right: 10px;
-    
-}
-
-.info-button:hover {
-    color: #007bff;
-}
-
-.delete-button:hover {
-    color: #dc3545;
-}
-
-
-
-/* Responsividad para pantallas pequeñas */
-@media (max-width: 768px) {
+    transition: color 0.3s ease;
+  }
+  
+  .info-button:hover {
+    color: var(--color-secundario);
+  }
+  
+  .delete-button:hover {
+    color: #dc3545; /* Rojo para eliminación */
+  }
+  
+  /* Responsividad para pantallas pequeñas */
+  @media (max-width: 768px) {
     .main-content-pedidos-admin h1 {
-        font-size: 1.5rem;
+      font-size: 1.5rem;
     }
-
-    .search-input-pedidos {
-        width: 100%;
+  
+    .search-bar-pedidos {
+      flex-direction: column;
+      gap: 10px;
     }
-
+  
     .table-responsive {
-        padding: 0 10px;
+      padding: 0 10px;
     }
-
+  
     .pedidos-table th, 
     .pedidos-table td {
-        padding: 8px;
-        font-size: 0.78rem;
+      padding: 8px;
+      font-size: 0.78rem;
     }
-}
-
-/* Responsividad para pantallas muy pequeñas */
-@media (max-width: 480px) {
+  }
+  
+  /* Responsividad para pantallas muy pequeñas */
+  @media (max-width: 480px) {
     .main-content-pedidos-admin h1 {
-        font-size: 1.2rem;
+      font-size: 1.2rem;
     }
-
+  
     .info-button, 
     .delete-button {
-        font-size: 1rem;
-        margin-right: 5px;
+      font-size: 1rem;
+      margin-right: 5px;
     }
-}
+  }
+  

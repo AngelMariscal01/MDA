@@ -116,9 +116,10 @@ function UsuariosAdministrador() {
       </button>
 
       <main className="main-content-usuarios-admin">
-        <h1>Usuarios:</h1>
+     <center><h1 className="titulo-principal-admin">Gestión de Usuarios</h1></center>
 
         {/* Campo de búsqueda */}
+        <center>
         <input
           type="text"
           placeholder="Buscar por nombre..."
@@ -126,8 +127,8 @@ function UsuariosAdministrador() {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="search-input"
         />
-
-        <div className="table-responsive">
+        </center>
+        <center><div className="table-responsive">
           <table className="usuarios-table">
             <thead>
               <tr>
@@ -170,7 +171,7 @@ function UsuariosAdministrador() {
             </tbody>
           </table>
         </div>
-        
+        </center>
       </main>
       <ToastContainer position="bottom-right" autoClose={3000} />
     </div>
