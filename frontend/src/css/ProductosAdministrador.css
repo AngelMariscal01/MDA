@@ -54,7 +54,7 @@
     border-radius: 8px;
     padding: 15px;
     background-color: #f9f9f9;
-    box-shadow: 0 4px 8px rgba(212, 0, 255, 0.1);
+    box-shadow: 0 4px 8px rgba(242, 213, 196, 0.722);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -95,7 +95,7 @@
     text-align: center;
     border: none;
     border-radius: 4px;
-    background-color: #4d3dac;
+    background-color: #D97789;
     margin: 20px;
     color: #fff;
     cursor: pointer;
@@ -104,7 +104,7 @@
     font-size: 0.9rem;
 }
 .actualizar:hover {
-    background-color: #321ab9;
+    background-color: #D97789;
 }
 
 .actions {
@@ -165,7 +165,7 @@
     padding: 1px 20px;
     border: none;
     border-radius: 4px;
-    background-color: #d084fc;
+    background-color: #F2A7A7;
     color: #fff;
     text-align: center;
     cursor: pointer;
@@ -184,7 +184,7 @@
 
 .product-price {
     font-size: 1.2rem;
-    color: #0ebd25;
+    color: #D9BB84;
     margin: 5px;
     width: 90%;
     max-width: 1000px;
