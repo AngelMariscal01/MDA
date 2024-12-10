@@ -183,32 +183,84 @@ function Estadisticas() {
         },
     };
         // Función para exportar a PDF
-    const exportToPDF = () => {
+    const exportToPDF = (filterType) => {
         const doc = new jsPDF();
+        let filteredPedidos;
+    
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+    
+        if (filterType === 'today') {
+            // Filtrar pedidos del día de hoy
+            filteredPedidos = pedidosTabla.filter((pedido) => {
+                const pedidoDate = new Date(pedido.fecha_pedido);
+                return pedidoDate.toDateString() === today.toDateString();
+            });
+        } else if (filterType === 'lastWeek') {
+            // Filtrar pedidos de la última semana
+            const lastWeek = new Date();
+            lastWeek.setDate(today.getDate() - 7);
+    
+            filteredPedidos = pedidosTabla.filter((pedido) => {
+                const pedidoDate = new Date(pedido.fecha_pedido);
+                return pedidoDate >= lastWeek && pedidoDate <= today;
+            });
+        } else if (filterType === 'lastMonth') {
+            // Filtrar pedidos del último mes
+            const lastMonth = new Date();
+            lastMonth.setMonth(today.getMonth() - 1);
+    
+            filteredPedidos = pedidosTabla.filter((pedido) => {
+                const pedidoDate = new Date(pedido.fecha_pedido);
+                return pedidoDate >= lastMonth && pedidoDate <= today;
+            });
+        } else {
+            // Sin filtro (todos los pedidos)
+            filteredPedidos = pedidosTabla;
+        }
+    
+        // Agregar título y encabezado del reporte
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(18);
+        doc.setTextColor(150, 75, 100); // Color rosa pastel
+        doc.text('Reporte de Mini Donas Arenita', 105, 20, { align: 'center' });
+    
+        doc.setFontSize(12);
+        doc.setTextColor(100, 100, 100);
+        const reportDate = new Date().toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        doc.text(`Fecha de Generación: ${reportDate}`, 14, 30);
+    
+        // Personalizar la tabla
         doc.autoTable({
+            startY: 40,
+            headStyles: { fillColor: [255, 182, 193] }, // Rosa pastel
+            bodyStyles: { textColor: [80, 80, 80] },
+            alternateRowStyles: { fillColor: [255, 240, 245] }, // Rosa más claro
             head: [['ID Pedido', 'Usuario', 'Fecha Pedido', 'Fecha Entrega', 'Dirección', 'Total']],
-            body: pedidosTabla.map(pedido => [
+            body: filteredPedidos.map((pedido) => [
                 pedido.pedido_id,
                 pedido.nombre,
                 new Date(pedido.fecha_pedido).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }),
-                new Date(pedido.fecha_entrega).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }), // Formatear la fecha de entregapedido.fecha_entrega,
+                new Date(pedido.fecha_entrega).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }),
                 pedido.direccion,
-                pedido.total,
+                `$${parseFloat(pedido.total).toFixed(2)}`,
             ]),
         });
-        var total = 0;
-            // Calcular el total
-        pedidosTabla.forEach((pedido) => {
+    
+        // Calcular total
+        let total = 0;
+        filteredPedidos.forEach((pedido) => {
             total += parseFloat(pedido.total);
-        }); 
-
-            
-            // Agregar el total al final del PDF
-        doc.text(`Total: $${parseFloat(total).toFixed(2)}`, 14, doc.lastAutoTable.finalY + 10);
-
-        doc.save('pedidos.pdf');
+        });
+    
+        // Agregar total al final del PDF
+        doc.setFontSize(14);
+        doc.setTextColor(150, 75, 100); // Rosa pastel
+        doc.text(`Total: $${parseFloat(total).toFixed(2)}`, 14, doc.lastAutoTable.finalY + 20);
+    
+        // Guardar el PDF con un nombre descriptivo
+        doc.save(`reporte_minidonas_${filterType}.pdf`);
     };
-
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
     const cerrarSesion = () => {
@@ -284,7 +336,7 @@ function Estadisticas() {
                 />
             </div>
         </div>
-        <div className="table-container" style={{ maxWidth: '100%', overflowX: 'auto', margin: '10px' }}>
+        <div className="table-container">
             <DataTable
                 title="Pedidos"
                 columns={columns}
@@ -294,10 +346,13 @@ function Estadisticas() {
                 pagination
             />
         </div>
-
-            <button onClick={exportToPDF} className="btn-pdf">Exportar a PDF</button>
-
-            </main>
+        <div className='buttons-pdf'>
+            <button onClick={() => exportToPDF('today')} className="btn-pdf">Reporte de hoy</button>
+            <button onClick={() => exportToPDF('lastWeek')} className="btn-pdf">Reporte de ultima semana</button>
+            <button onClick={() => exportToPDF('lastMonth')} className="btn-pdf">Reporte de ultimo mes</button>
+            <button onClick={() => exportToPDF()} className="btn-pdf">Reporte de todos los pedidos</button>
+        </div>
+        </main>
         </div>
     );
 }

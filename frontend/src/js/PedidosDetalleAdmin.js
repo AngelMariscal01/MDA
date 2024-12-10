@@ -35,7 +35,8 @@ function DetallesPedido() {
     const [nombreUsuario, setNombreUsuario] = useState('');
     const [telefono, setTelefono] = useState('');
     const [totalPedido, setTotal] = useState(0);
-
+    const [estadoInicial, setEstadoInicial] = useState('');
+    
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -61,7 +62,9 @@ function DetallesPedido() {
                     setEstadoPedido(data[0].estado_id); // Estado actual
                     setFechaEntrega(data[0].fecha_entrega_estimada || ''); // Fecha estimada
                     setHoraEntrega(data[0].hora_entrega_estimada || ''); // Hora estimada
+                    setEstadoInicial(data[0].estado_id.toString());
                 }
+                
             })
             .catch((err) => console.error('Error al obtener detalles del pedido:', err));
     }, [pedido_id]);
@@ -98,6 +101,15 @@ function DetallesPedido() {
                 setTimeout(() => navigate('/gestionPedidos'), 1000);
             })
             .catch((err) => toast.success('Error al actualizar el estado del pedido', err));
+        if (estadoPedido === 'f01cab50-7ebe-45ed-8f4a-0618b83c9c8f') {
+                axios
+                    .post('http://localhost:8081/actualizarStock', {
+                        pedido_id,
+                        productos,
+                    })
+                    .then(() => toast.success('Stock actualizado correctamente'))
+                    .catch((err) => toast.error('Error al actualizar el stock', err));
+            }
     };
 
     const handleActualizar = () => {
@@ -116,7 +128,7 @@ function DetallesPedido() {
         actualizarFechaHoraEntrega();
         actualizarEstadoPedido();
     };
-
+    
     return (
         <div className="inicio-cliente">
             <header className="header">
@@ -164,37 +176,33 @@ function DetallesPedido() {
                             <h2>Fecha estimada de entrega:</h2>
                             <input
                                 type="date"
-
                                 className="fecha-entrega"
-                                value={(fechaEntrega) ? new Date(fechaEntrega).toISOString().split('T')[0]
-                                    : ''
-                                }
+                                value={fechaEntrega ? new Date(fechaEntrega).toISOString().split('T')[0] : ''}
                                 onChange={(e) => setFechaEntrega(e.target.value)}
+                                disabled={estadoInicial === 'f01cab50-7ebe-45ed-8f4a-0618b83c9c8f'}
                             />
-                            <h2>Hora estimada de entrega:</h2>
                             <input
                                 type="time"
                                 className="hora-entrega"
                                 value={horaEntrega}
                                 onChange={(e) => setHoraEntrega(e.target.value)}
+                                disabled={estadoInicial === 'f01cab50-7ebe-45ed-8f4a-0618b83c9c8f'}
                             />
-                        </div>
-                        <div className="estado">
-                            <h2>Estado:</h2>
                             <select
                                 className="estado-select"
                                 value={estadoPedido}
                                 onChange={(e) => setEstadoPedido(e.target.value)}
+                                disabled={estadoInicial === 'f01cab50-7ebe-45ed-8f4a-0618b83c9c8f'}
                             >
                                 {estados.map((estado) => (
                                     <option key={estado.estado_id} value={estado.estado_id}>
                                         {estado.estado_nombre}
                                     </option>
                                 ))}
-                            </select>
+                        </select>
                         </div>
                         <label className="total">Total: ${totalPedido}</label>
-                        <button className="actualizar" onClick={handleActualizar}>
+                        <button className="actualizar" onClick={handleActualizar} disabled={estadoInicial === 'f01cab50-7ebe-45ed-8f4a-0618b83c9c8f'}>
                             Actualizar
                         </button>
                     </>

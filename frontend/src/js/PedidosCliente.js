@@ -3,6 +3,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FaBars, FaInfoCircle } from 'react-icons/fa';
 import '../css/Pedidos.css';
 import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function PedidosCliente() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -11,6 +13,8 @@ function PedidosCliente() {
     const [fechaFiltro, setFechaFiltro] = useState('');
     const [estadoFiltro, setEstadoFiltro] = useState('');
     const location = useLocation();
+    const [ultimoPedido, setUltimoPedido] = useState(null);
+    var validar = true;
     const  {usuarioId, rol}  = location.state || {};
     console.log(usuarioId, rol);
     const navigate = useNavigate();
@@ -31,17 +35,25 @@ function PedidosCliente() {
             })
             .then((response) => {
                 console.log('Pedidos obtenidos:', response.data);
-                if(response.data.message === 'No hay pedidos') {
+                if (response.data.message === 'No hay pedidos') {
                     console.log('No hay pedidos');
-                    setPedidos(Array.isArray(response.data.pedidos) ? response.data.pedidos : []);
-                }else{
+                    setPedidos([]);
+                } else {
                     setPedidos(response.data);
+                    const ultimoPedido = response.data[response.data.length - 1];
+                    setUltimoPedido(ultimoPedido); // Establecer el último pedido
+    
+                    // Mostrar el toast después de establecer el último pedido
+                    if (ultimoPedido && validar) {
+                        toast.success(`Último pedido: ${ultimoPedido.estado_nombre}`);
+                        validar = false; // Marcar que el toast ha sido mostrado
+                    }
                 }
             })
             .catch((error) => {
                 console.error('Error al obtener pedidos:', error);
             });
-    }, []);
+    }, [usuarioId]); // Se ejecuta solo cuando 'usuarioId' cambia
 
     const pedidosFiltrados = pedidos.filter((pedido) => {
         const coincideBusqueda = pedido.pedido_id.toString().includes(searchTerm);
@@ -172,6 +184,7 @@ function PedidosCliente() {
                     </table>
                 </div>
             </main>
+            <ToastContainer />
         </div>
     );
 }

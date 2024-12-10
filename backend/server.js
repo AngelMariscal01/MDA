@@ -901,7 +901,21 @@ app.get('/estadisticasPedidos', async (req, res) => {
         res.status(500).json({ error: 'Error al obtener datos de estadísticas' });
     }
 })
-
+app.post('/actualizarStock', async (req, res) => {
+    const { pedido_id, productos } = req.body;
+    try {
+        for (const producto of productos) {
+            await db.query(
+                'UPDATE productos SET stock = stock - $1 WHERE producto_id = $2',
+                [producto.cantidad_pedido, producto.producto_id]
+            );
+        }
+        res.status(200).send({ message: 'Stock actualizado correctamente' });
+    } catch (err) {
+        console.error('Error al actualizar el stock:', err);
+        res.status(500).send({ error: 'Error al actualizar el stock' });
+    }
+});
 
 function newId() {
     return uuidv4();

@@ -47,8 +47,9 @@ function ProductCard({ product }) {
     };
     return (
         <div className="product-card">
+            {product.stock <= 10 && <label className="alerta">¡Bajo en stock!</label>}
             <img src={imagen} alt={`Imagen de ${product.nombre}`} className="product-image" />
-            <h3 className="product-name">{product.nombre}</h3>
+            <h3 className="product-name">{product.nombre} ({product.cantidad_piezas }pz) <strong>Stock: {product.stock}</strong></h3>
             <button className="edit-btn" onClick={() => handleEdit(product)}>Editar</button>
             
             {/* Botón para cambiar el estado */}
